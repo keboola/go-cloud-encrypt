@@ -1,0 +1,9 @@
+services:
+  dev:
+    build: .
+    volumes:
+      - ./:/code:z
+      - cache:/tmp/cache
+
+volumes:
+  cache:
