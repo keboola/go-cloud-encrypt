@@ -1,5 +1,5 @@
 locals {
-  gcp_project = "kbc-dev-platform-services"
+  gcp_project = "go-team-dev"
 }
 
 provider "google" {

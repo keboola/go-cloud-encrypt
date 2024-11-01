@@ -6,7 +6,7 @@ variable "az_tenant_id" {
 provider "azurerm" {
   features {}
   tenant_id       = var.az_tenant_id
-  subscription_id = "c5182964-8dca-42c8-a77a-fa2a3c6946ea"
+  subscription_id = "0c737b3e-898f-48de-a33a-30671859dc4f"
 }
 
 provider "azuread" {
