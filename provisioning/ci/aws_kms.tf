@@ -17,10 +17,10 @@ data "aws_iam_policy_document" "kms_key_policy" {
   }
 }
 
-resource "aws_kms_key" "object_encryptor" {
-  description = "Object Encryptor key - ${var.name_prefix}"
+resource "aws_kms_key" "go_cloud_encrypt" {
+  description = "Go Cloud Encrypt key - ${var.name_prefix}"
 }
 
 output "aws_kms_key_id" {
-  value = aws_kms_key.object_encryptor.id
+  value = aws_kms_key.go_cloud_encrypt.id
 }

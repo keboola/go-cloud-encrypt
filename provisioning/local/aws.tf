@@ -4,8 +4,8 @@ provider "aws" {
 
   default_tags {
     tags = {
-      KebolaStack = "${var.name_prefix}-object-encryptor"
-      KeboolaRole = "object-encryptor"
+      KebolaStack = "${var.name_prefix}-go-cloud-encrypt"
+      KeboolaRole = "go-cloud-encrypt"
     }
   }
 }

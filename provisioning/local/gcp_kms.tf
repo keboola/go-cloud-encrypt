@@ -1,11 +1,11 @@
-resource "google_kms_key_ring" "object_encryptor_keyring" {
-  name     = "${var.name_prefix}-object-encryptor"
+resource "google_kms_key_ring" "go_cloud_encrypt_keyring" {
+  name     = "${var.name_prefix}-go-cloud-encrypt"
   location = "global"
 }
 
-resource "google_kms_crypto_key" "object_encryptor_key" {
-  name     = "${var.name_prefix}-object-encryptor"
-  key_ring = google_kms_key_ring.object_encryptor_keyring.id
+resource "google_kms_crypto_key" "go_cloud_encrypt_key" {
+  name     = "${var.name_prefix}-go-cloud-encrypt"
+  key_ring = google_kms_key_ring.go_cloud_encrypt_keyring.id
   purpose  = "ENCRYPT_DECRYPT"
 
   lifecycle {
@@ -14,5 +14,5 @@ resource "google_kms_crypto_key" "object_encryptor_key" {
 }
 
 output "gcp_kms_key_id" {
-  value = google_kms_crypto_key.object_encryptor_key.id
+  value = google_kms_crypto_key.go_cloud_encrypt_key.id
 }

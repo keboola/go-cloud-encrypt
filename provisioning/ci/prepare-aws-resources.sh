@@ -12,7 +12,7 @@ if [ "${CI_PS_ACCOUNT_ID}" != "${CURRENT_ACCOUNT_ID}" ]; then
   exit 1;
 fi
 
-TERRAFORM_BACKEND_STACK_PREFIX=ci-object-encryptor
+TERRAFORM_BACKEND_STACK_PREFIX=ci-go-cloud-encrypt
 TERRAFORM_BACKEND_STACK_NAME="${TERRAFORM_BACKEND_STACK_PREFIX}-terraform"
 
 aws cloudformation deploy --stack-name "${TERRAFORM_BACKEND_STACK_NAME}" \

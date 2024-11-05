@@ -1,4 +1,4 @@
-resource "azurerm_resource_group" "object_encryptor" {
-  name     = "${var.name_prefix}-object-encryptor"
+resource "azurerm_resource_group" "go_cloud_encrypt" {
+  name     = "${var.name_prefix}-go-cloud-encrypt"
   location = "eastus"
 }

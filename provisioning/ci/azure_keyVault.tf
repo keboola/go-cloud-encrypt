@@ -1,13 +1,13 @@
-resource "azurerm_key_vault" "object_encryptor" {
-  name                = "${var.name_prefix}-object-encryptor"
+resource "azurerm_key_vault" "go_cloud_encrypt" {
+  name                = "${var.name_prefix}-go-cloud-encrypt"
   tenant_id           = data.azurerm_client_config.current.tenant_id
-  resource_group_name = azurerm_resource_group.object_encryptor.name
-  location            = azurerm_resource_group.object_encryptor.location
+  resource_group_name = azurerm_resource_group.go_cloud_encrypt.name
+  location            = azurerm_resource_group.go_cloud_encrypt.location
   sku_name            = "standard"
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = azuread_service_principal.object_encryptor.id
+    object_id = azuread_service_principal.go_cloud_encrypt.id
 
     secret_permissions = [
       "Get",
@@ -43,5 +43,5 @@ resource "azurerm_key_vault" "object_encryptor" {
 }
 
 output "az_key_vault_url" {
-  value = azurerm_key_vault.object_encryptor.vault_uri
+  value = azurerm_key_vault.go_cloud_encrypt.vault_uri
 }
