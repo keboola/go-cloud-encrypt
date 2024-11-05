@@ -26,6 +26,7 @@ terraform {
     region         = "eu-central-1"
     bucket         = "local-dev-terraform-bucket"
     dynamodb_table = "local-dev-terraform-table"
+    key            = "go-cloud-encrypt"
   }
 }
 
