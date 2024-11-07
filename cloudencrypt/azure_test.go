@@ -28,7 +28,12 @@ func Test_AzureEncryptor(t *testing.T) {
 		require.Fail(t, "TEST_AZURE_KEY_VAULT_URL is empty")
 	}
 
-	encryptor, err := NewAzureEncryptor(ctx, vaultURL, "jt")
+	keyName := os.Getenv("TEST_AZURE_KEY_NAME")
+	if keyName == "" {
+		require.Fail(t, "TEST_AZURE_KEY_NAME is empty")
+	}
+
+	encryptor, err := NewAzureEncryptor(ctx, vaultURL, keyName)
 	require.NoError(t, err)
 
 	meta := MetadataKV{

@@ -9,6 +9,7 @@ output_var 'TEST_AZURE_TENANT_ID' "$(terraform_output 'az_tenant_id')"
 output_var 'TEST_AZURE_CLIENT_ID' "$(terraform_output 'az_application_id')"
 output_var 'TEST_AZURE_CLIENT_SECRET' "$(terraform_output 'az_application_secret')"
 output_var 'TEST_AZURE_KEY_VAULT_URL' "$(terraform_output 'az_key_vault_url')"
+output_var 'TEST_AZURE_KEY_NAME' "$(terraform_output 'az_key_name')"
 echo ""
 
 output_var 'TEST_AWS_ACCESS_KEY_ID' "$(terraform_output 'aws_access_key_id')"

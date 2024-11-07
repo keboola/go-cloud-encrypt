@@ -42,6 +42,27 @@ resource "azurerm_key_vault" "go_cloud_encrypt" {
   }
 }
 
+resource "random_string" "azurerm_key_vault_key_name" {
+  length  = 13
+  lower   = true
+  numeric = false
+  special = false
+  upper   = false
+}
+
+resource "azurerm_key_vault_key" "go_cloud_encrypt" {
+  name = "key-${random_string.azurerm_key_vault_key_name.result}"
+
+  key_vault_id = azurerm_key_vault.go_cloud_encrypt.id
+  key_type     = "RSA"
+  key_size     = 2048
+  key_opts     = ["decrypt", "encrypt"]
+}
+
 output "az_key_vault_url" {
   value = azurerm_key_vault.go_cloud_encrypt.vault_uri
+}
+
+output "az_key_name" {
+  value = azurerm_key_vault_key.go_cloud_encrypt.name
 }
