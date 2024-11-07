@@ -6,14 +6,13 @@ INSERT_MODE=prepend
 VERBOSE=false
 
 help () {
-  echo "Syntax: update-env.sh [-v] [-a] [-e ${ENV_FILE}] <aws|azure|gcp>"
+  echo "Syntax: update-env.sh [-v] [-a] [-e ${ENV_FILE}]"
   echo "Options:"
   echo "  -a|--append         Append mode (used only when creating new env file, by default values are prepended to the env file)"
   echo "  -e|--env-file file  Env file to write (default: ${ENV_FILE})"
   echo "  -v|--verbose        Output extra information"
   echo ""
-  echo "Example: update-env.sh aws"
-  echo "Example: update-env.sh -e ${ENV_FILE} azure"
+  echo "Example: update-env.sh -e ${ENV_FILE}"
   echo ""
 }
 
@@ -53,15 +52,7 @@ while [[ $# -gt 0 ]]; do
 done
 set -- "${POSITIONAL_ARGS[@]}"
 
-ENV_NAME=${1:-}
-if [[ $ENV_NAME != "aws" && $ENV_NAME != "azure" && $ENV_NAME != "gcp" ]]; then
-    echo "Invalid environment name '${ENV_NAME}'. Possible values are: aws, azure, gcp"
-    echo ""
-    help
-    exit 1
-fi
-
-echo -e "Configuring \033[1;33m${ENV_FILE}\033[0m for \033[1;33m${ENV_NAME}\033[0m"
+echo -e "Configuring \033[1;33m${ENV_FILE}\033[0m"
 
 SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="${SCRIPT_PATH}/../.."
@@ -104,7 +95,6 @@ trap "rm ${TF_OUTPUTS_FILE} || true; rm ${ENV_TF_FILE} || true" EXIT
 terraform -chdir="${SCRIPT_PATH}" output -json > "${TF_OUTPUTS_FILE}"
 
 "${SCRIPT_PATH}/env-scripts/extract-variables-common.sh" > "${ENV_TF_FILE}"
-"${SCRIPT_PATH}/env-scripts/extract-variables-${ENV_NAME}.sh" >> "${ENV_TF_FILE}"
 
 echo "Writing variables"
 if [[ "$OSTYPE" == "darwin"* ]];
