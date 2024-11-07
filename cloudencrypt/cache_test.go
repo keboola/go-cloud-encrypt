@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dgraph-io/ristretto/v2"
+	"github.com/keboola/go-utils/pkg/wildcards"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,7 +33,7 @@ func Test_CacheEncryptor(t *testing.T) {
 		ctx,
 		logEncryptor,
 		time.Hour,
-		&ristretto.Config[[]byte, []byte]{
+		&ristretto.Config[string, []byte]{
 			NumCounters: 1e4,
 			MaxCost:     1 << 20,
 			BufferItems: 64,
@@ -56,7 +57,7 @@ func Test_CacheEncryptor(t *testing.T) {
 
 	assert.Equal(t, []byte("Lorem ipsum"), decrypted)
 
-	assert.Equal(t, `encryption success
-decryption error: cipher: message authentication failed
+	wildcards.Assert(t, `encryption success
+decryption error:%s cipher: message authentication failed
 `, buffer.String())
 }

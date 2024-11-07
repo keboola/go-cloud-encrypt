@@ -6,6 +6,7 @@ import (
 	"log"
 	"testing"
 
+	"github.com/keboola/go-utils/pkg/wildcards"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -42,8 +43,8 @@ func Test_LogEncryptor(t *testing.T) {
 
 	assert.Equal(t, []byte("Lorem ipsum"), decrypted)
 
-	assert.Equal(t, `encryption success
-decryption error: cipher: message authentication failed
+	wildcards.Assert(t, `encryption success
+decryption error:%s cipher: message authentication failed
 decryption success
 `, buffer.String())
 }

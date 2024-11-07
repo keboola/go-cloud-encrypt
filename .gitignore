@@ -1,5 +1,6 @@
 !.gitkeep
 
+var/*
 vendor/*
 
 .env.local

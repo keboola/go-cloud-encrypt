@@ -116,7 +116,4 @@ else
         }; /${DELIMITER_END}/p; d; }" "${ENV_FILE}";
 fi
 
-echo "Purging Symfony cache"
-rm -rf var/cache
-
 echo "Done"

@@ -8,6 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.28.1
 	github.com/aws/aws-sdk-go-v2/service/kms v1.37.2
 	github.com/dgraph-io/ristretto/v2 v2.0.0-alpha
+	github.com/keboola/go-utils v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.9.0
 )

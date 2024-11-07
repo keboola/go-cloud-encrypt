@@ -23,6 +23,6 @@ PRIVATE_KEY_ENCODED="$(terraform_output 'gcp_private_key')"
 PRIVATE_KEY=$(printf "%s" "$PRIVATE_KEY_ENCODED" | base64 --decode)
 
 output_file 'var/gcp-private-key.json' "$PRIVATE_KEY"
-output_var 'TEST_GOOGLE_APPLICATION_CREDENTIALS' 'var/gcp-private-key.json'
+output_var 'TEST_GOOGLE_APPLICATION_CREDENTIALS' '/code/var/gcp-private-key.json'
 
 echo ""
