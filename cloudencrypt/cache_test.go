@@ -29,15 +29,20 @@ func Test_CacheEncryptor(t *testing.T) {
 	logEncryptor, err := NewLogEncryptor(ctx, nativeEncryptor, logger)
 	assert.NoError(t, err)
 
+	config := &ristretto.Config[[]byte, []byte]{
+		NumCounters: 1e4,
+		MaxCost:     1 << 20,
+		BufferItems: 64,
+	}
+
+	cache, err := ristretto.NewCache(config)
+	assert.NoError(t, err)
+
 	encryptor, err := NewCacheEncryptor(
 		ctx,
 		logEncryptor,
 		time.Hour,
-		&ristretto.Config[string, []byte]{
-			NumCounters: 1e4,
-			MaxCost:     1 << 20,
-			BufferItems: 64,
-		},
+		cache,
 	)
 	assert.NoError(t, err)
 
@@ -48,6 +53,9 @@ func Test_CacheEncryptor(t *testing.T) {
 
 	encrypted, err := encryptor.Encrypt(ctx, []byte("Lorem ipsum"), meta)
 	assert.NoError(t, err)
+
+	// Wait for cached item to be available for get operations
+	cache.Wait()
 
 	_, err = encryptor.Decrypt(ctx, encrypted)
 	assert.ErrorContains(t, err, "cipher: message authentication failed")
