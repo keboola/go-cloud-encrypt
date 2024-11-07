@@ -4,10 +4,12 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
-	"strings"
+	"math"
+	"math/big"
 	"time"
 
-	"github.com/Azure/azure-sdk-for-go/services/keyvault/v7.0/keyvault"
+	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
+	"github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets"
 	"github.com/pkg/errors"
 )
 
@@ -18,16 +20,24 @@ const (
 
 // AzureEncryptor Implements Encryptor by saving the value as a secret in Azure's Key Vault.
 type AzureEncryptor struct {
-	client       *keyvault.BaseClient
+	client       *azsecrets.Client
 	vaultBaseURL string
 	secretPrefix string
 }
 
 func NewAzureEncryptor(ctx context.Context, vaultBaseURL, secretPrefix string) (*AzureEncryptor, error) {
-	client := keyvault.New()
+	cred, err := azidentity.NewDefaultAzureCredential(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := azsecrets.NewClient(vaultBaseURL, cred, nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return &AzureEncryptor{
-		client:       &client,
+		client:       client,
 		vaultBaseURL: vaultBaseURL,
 		secretPrefix: secretPrefix,
 	}, nil
@@ -48,34 +58,35 @@ func (encryptor *AzureEncryptor) Encrypt(ctx context.Context, value []byte, meta
 	}
 	secretValueString := string(secretValue)
 
-	random, err := rand.Int(rand.Reader, nil)
+	random, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
 	if err != nil {
 		return nil, errors.Wrapf(err, "can't generate random int: %s", err.Error())
 	}
 	secretName := fmt.Sprintf("%s-%d-%d", encryptor.secretPrefix, time.Now().Unix(), random)
 
-	secret, err := encryptor.client.SetSecret(
+	_, err = encryptor.client.SetSecret(
 		ctx,
-		encryptor.vaultBaseURL,
 		secretName,
-		keyvault.SecretSetParameters{
+		azsecrets.SetSecretParameters{
 			Value: &secretValueString,
 		},
+		nil,
 	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "azure set secret failed: %s", err.Error())
 	}
 
-	return []byte(*secret.ID), nil
+	return []byte(secretName), nil
 }
 
 func (encryptor *AzureEncryptor) Decrypt(ctx context.Context, encryptedValue []byte, metadata ...MetadataKV) ([]byte, error) {
-	parts := strings.Split(string(encryptedValue), "/")
-	if len(parts) != 4 {
-		return nil, errors.New("unable to parse secret id")
-	}
+	//parts := strings.Split(string(encryptedValue), "/")
+	//if len(parts) != 4 {
+	//	fmt.Println(string(encryptedValue))
+	//	return nil, errors.New("unable to parse secret id")
+	//}
 
-	secret, err := encryptor.client.GetSecret(ctx, encryptor.vaultBaseURL, parts[2], parts[3])
+	secret, err := encryptor.client.GetSecret(ctx, string(encryptedValue), "", nil)
 	if err != nil {
 		return nil, errors.Wrapf(err, "azure get secret failed: %s", err.Error())
 	}
