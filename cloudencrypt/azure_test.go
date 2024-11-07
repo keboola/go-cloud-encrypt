@@ -28,7 +28,7 @@ func Test_AzureEncryptor(t *testing.T) {
 		require.Fail(t, "TEST_AZURE_KEY_VAULT_URL is empty")
 	}
 
-	encryptor, err := NewAzureEncryptor(ctx, vaultURL, "jt-")
+	encryptor, err := NewAzureEncryptor(ctx, vaultURL, "jt")
 	require.NoError(t, err)
 
 	meta := MetadataKV{
