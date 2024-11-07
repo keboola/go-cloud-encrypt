@@ -36,7 +36,7 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, value []byte, metad
 	defer nativeEncryptor.Close()
 
 	// Encrypt the value using the random secret key
-	encryptedValue, err := nativeEncryptor.Encrypt(ctx, value)
+	encryptedValue, err := nativeEncryptor.Encrypt(ctx, value, metadata...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (encryptor *DualEncryptor) Decrypt(ctx context.Context, encryptedValue []by
 
 	defer nativeEncryptor.Close()
 
-	decrypted, err := nativeEncryptor.Decrypt(ctx, []byte(decoded[mapKeyEncryptedValue]))
+	decrypted, err := nativeEncryptor.Decrypt(ctx, []byte(decoded[mapKeyEncryptedValue]), metadata...)
 	if err != nil {
 		return nil, err
 	}
