@@ -9,11 +9,19 @@ resource "azurerm_key_vault" "go_cloud_encrypt" {
     tenant_id = data.azurerm_client_config.current.tenant_id
     object_id = azuread_service_principal.go_cloud_encrypt.id
 
-    secret_permissions = [
+    key_permissions = [
       "Get",
       "List",
-      "Set",
+      "Update",
+      "Create",
+      "Import",
       "Delete",
+      "Recover",
+      "Backup",
+      "Restore",
+      "Purge",
+      "Encrypt",
+      "Decrypt",
     ]
   }
 
@@ -31,17 +39,28 @@ resource "azurerm_key_vault" "go_cloud_encrypt" {
       "Recover",
       "Backup",
       "Restore",
-    ]
-
-    secret_permissions = [
-      "Get",
-      "List",
-      "Set",
-      "Delete",
+      "Purge",
+      "Encrypt",
+      "Decrypt",
     ]
   }
 }
 
+resource "azurerm_key_vault_key" "go_cloud_encrypt" {
+  name         = "${var.name_prefix}-go-cloud-encrypt"
+  key_vault_id = azurerm_key_vault.go_cloud_encrypt.id
+  key_type     = "RSA"
+  key_size     = 2048
+  key_opts     = [
+    "decrypt",
+    "encrypt",
+  ]
+}
+
 output "az_key_vault_url" {
   value = azurerm_key_vault.go_cloud_encrypt.vault_uri
+}
+
+output "az_key_name" {
+  value = azurerm_key_vault_key.go_cloud_encrypt.name
 }
