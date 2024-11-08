@@ -1,5 +1,5 @@
 locals {
-  gcp_project = "kbc-ci-platform-services"
+  gcp_project = "go-team-ci"
 }
 
 provider "google" {

@@ -3,11 +3,11 @@ set -Eeuo pipefail
 
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-CI_PS_ACCOUNT_ID=480319613404
-PROFILE_NAME="Keboola-CI-Platform-Services-Team-AWSAdministratorAccess"
+CI_ACCOUNT_ID=831559560923
+PROFILE_NAME="Keboola-CI-KAC-Team-AWSAdministratorAccess"
 CURRENT_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text --profile ${PROFILE_NAME})
-if [ "${CI_PS_ACCOUNT_ID}" != "${CURRENT_ACCOUNT_ID}" ]; then
-  echo "Currently configured AWS CLI account (${CURRENT_ACCOUNT_ID}) does not match CI-Platform-Services-Team account (${CI_PS_ACCOUNT_ID})"
+if [ "${CI_ACCOUNT_ID}" != "${CURRENT_ACCOUNT_ID}" ]; then
+  echo "Currently configured AWS CLI account (${CURRENT_ACCOUNT_ID}) does not match account (${CI_ACCOUNT_ID})"
   echo "Use correct AWS CLI profile"
   exit 1;
 fi

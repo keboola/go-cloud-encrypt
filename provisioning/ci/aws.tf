@@ -1,5 +1,5 @@
 provider "aws" {
-  allowed_account_ids = ["480319613404"] # CI-Platform-Services-Team
+  allowed_account_ids = ["831559560923"] # CI-KAC-Team
   region  = "eu-central-1"
 
   default_tags {
