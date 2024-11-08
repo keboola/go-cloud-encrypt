@@ -1,0 +1,38 @@
+name: GitHub Actions
+on: [ push ]
+concurrency: ci
+
+env:
+  TEST_AZURE_TENANT_ID: 9b85ee6f-4fb0-4a46-8cb7-4dcc6b262a89
+  TEST_AZURE_CLIENT_ID: 018b2e1a-41f3-48cf-a3b6-dd93f74c6d2f
+  TEST_AZURE_CLIENT_SECRET: ${{ secrets.TEST_AZURE_CLIENT_SECRET }}
+  TEST_AZURE_KEY_VAULT_URL: https://ci-go-cloud-encrypt.vault.azure.net/
+  TEST_AZURE_KEY_NAME: ci-go-cloud-encrypt
+  TEST_AWS_REGION: eu-central-1
+  TEST_AWS_ACCESS_KEY_ID: AKIA4DHGP53NXOCD6Y6B
+  TEST_AWS_SECRET_ACCESS_KEY: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
+  TEST_AWS_KMS_KEY_ID: f14ac86a-dc61-4544-b1f7-6312773765f0
+  TEST_AWS_ROLE_ID: arn:aws:iam::831559560923:role/ci-go-cloud-encrypt-role
+  TEST_GCP_KMS_KEY_ID: projects/go-team-ci/locations/global/keyRings/ci-go-cloud-encrypt/cryptoKeys/ci-go-cloud-encrypt
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Google Login
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.TEST_GCP_SERVICE_ACCOUNT_KEY }}
+          export_environment_variables: true
+          create_credentials_file: true
+
+      - name: Build image
+        run: |
+          docker login --username "$DOCKERHUB_USER" --password "$DOCKERHUB_TOKEN"
+          docker compose -f docker-compose.ci.yml build
+
+      - name: Run tests
+        run: |          
+          docker compose -f docker-compose.ci.yml run ci go test ./...
