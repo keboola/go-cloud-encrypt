@@ -28,10 +28,10 @@ func NewAWSEncryptor(ctx context.Context, region, keyID string) (*AWSEncryptor, 
 	}, nil
 }
 
-func (encryptor *AWSEncryptor) Encrypt(ctx context.Context, value []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *AWSEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
 	encryptInput := &kms.EncryptInput{
 		KeyId:             &encryptor.keyID,
-		Plaintext:         value,
+		Plaintext:         plaintext,
 		EncryptionContext: buildMetadataMap(metadata...),
 	}
 
@@ -43,10 +43,10 @@ func (encryptor *AWSEncryptor) Encrypt(ctx context.Context, value []byte, metada
 	return encryptOutput.CiphertextBlob, nil
 }
 
-func (encryptor *AWSEncryptor) Decrypt(ctx context.Context, encryptedValue []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *AWSEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
 	decryptInput := &kms.DecryptInput{
 		KeyId:             &encryptor.keyID,
-		CiphertextBlob:    encryptedValue,
+		CiphertextBlob:    ciphertext,
 		EncryptionContext: buildMetadataMap(metadata...),
 	}
 

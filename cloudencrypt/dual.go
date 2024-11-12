@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	mapKeyEncryptedKey   = "key"
-	mapKeyEncryptedValue = "value"
+	mapKeySecretKey  = "secretKey"
+	mapKeyCipherText = "ciphertext"
 )
 
 // DualEncryptor implements Encryptor by encrypting the value using the NativeEncryptor
@@ -21,7 +21,7 @@ func NewDualEncryptor(ctx context.Context, encryptor Encryptor) (*DualEncryptor,
 	}, nil
 }
 
-func (encryptor *DualEncryptor) Encrypt(ctx context.Context, value []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
 	// Generate a random secret key
 	secretKey, err := generateSecretKey()
 	if err != nil {
@@ -35,8 +35,8 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, value []byte, metad
 
 	defer nativeEncryptor.Close()
 
-	// Encrypt the value using the random secret key
-	encryptedValue, err := nativeEncryptor.Encrypt(ctx, value, metadata...)
+	// Encrypt given plaintext using the random secret key
+	ciphertext, err := nativeEncryptor.Encrypt(ctx, plaintext, metadata...)
 	if err != nil {
 		return nil, err
 	}
@@ -48,8 +48,8 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, value []byte, metad
 	}
 
 	output := make(map[string]string)
-	output[mapKeyEncryptedKey] = string(encryptedSecretKey)
-	output[mapKeyEncryptedValue] = string(encryptedValue)
+	output[mapKeySecretKey] = string(encryptedSecretKey)
+	output[mapKeyCipherText] = string(ciphertext)
 
 	encoded, err := encode(output)
 	if err != nil {
@@ -59,14 +59,14 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, value []byte, metad
 	return encoded, nil
 }
 
-func (encryptor *DualEncryptor) Decrypt(ctx context.Context, encryptedValue []byte, metadata ...MetadataKV) ([]byte, error) {
-	decoded, err := decode(encryptedValue)
+func (encryptor *DualEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
+	decoded, err := decode(ciphertext)
 	if err != nil {
 		return nil, err
 	}
 
 	// Decrypt the secret key
-	secretKey, err := encryptor.encryptor.Decrypt(ctx, []byte(decoded[mapKeyEncryptedKey]), metadata...)
+	secretKey, err := encryptor.encryptor.Decrypt(ctx, []byte(decoded[mapKeySecretKey]), metadata...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,12 +79,12 @@ func (encryptor *DualEncryptor) Decrypt(ctx context.Context, encryptedValue []by
 
 	defer nativeEncryptor.Close()
 
-	decrypted, err := nativeEncryptor.Decrypt(ctx, []byte(decoded[mapKeyEncryptedValue]), metadata...)
+	plaintext, err := nativeEncryptor.Decrypt(ctx, []byte(decoded[mapKeyCipherText]), metadata...)
 	if err != nil {
 		return nil, err
 	}
 
-	return decrypted, nil
+	return plaintext, nil
 }
 
 func (encryptor *DualEncryptor) Close() error {

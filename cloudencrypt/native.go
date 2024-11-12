@@ -29,7 +29,7 @@ func NewNativeEncryptor(secretKey []byte) (*NativeEncryptor, error) {
 	}, nil
 }
 
-func (encryptor *NativeEncryptor) Encrypt(ctx context.Context, value []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *NativeEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
 	additionalData, err := encode(buildMetadataMap(metadata...))
 	if err != nil {
 		return nil, err
@@ -41,25 +41,25 @@ func (encryptor *NativeEncryptor) Encrypt(ctx context.Context, value []byte, met
 	}
 
 	// Passing nonce as the first parameter prepends it to the actual encrypted value.
-	return encryptor.gcm.Seal(nonce, nonce, value, additionalData), nil
+	return encryptor.gcm.Seal(nonce, nonce, plaintext, additionalData), nil
 }
 
-func (encryptor *NativeEncryptor) Decrypt(ctx context.Context, encryptedValue []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *NativeEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
 	additionalData, err := encode(buildMetadataMap(metadata...))
 	if err != nil {
 		return nil, err
 	}
 
 	nonceSize := encryptor.gcm.NonceSize()
-	// Split the encrypted value back to the nonce + actual encrypted value.
-	nonce, ciphertext := encryptedValue[:nonceSize], encryptedValue[nonceSize:]
+	// Split the ciphertext back to the nonce + actual ciphertext.
+	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
 
-	decryptedValue, err := encryptor.gcm.Open(nil, nonce, ciphertext, additionalData)
+	plaintext, err := encryptor.gcm.Open(nil, nonce, ciphertext, additionalData)
 	if err != nil {
 		return nil, errors.Wrapf(err, "gcm decryption failed: %s", err.Error())
 	}
 
-	return decryptedValue, nil
+	return plaintext, nil
 }
 
 func (encryptor *NativeEncryptor) Close() error {

@@ -30,14 +30,14 @@ func Test_GCPEncryptor(t *testing.T) {
 		Value: "metavalue",
 	}
 
-	encrypted, err := encryptor.Encrypt(ctx, []byte("Lorem ipsum"), meta)
+	ciphertext, err := encryptor.Encrypt(ctx, []byte("Lorem ipsum"), meta)
 	require.NoError(t, err)
 
-	_, err = encryptor.Decrypt(ctx, encrypted)
+	_, err = encryptor.Decrypt(ctx, ciphertext)
 	assert.ErrorContains(t, err, "gcp decryption failed: rpc error: code = InvalidArgument")
 
-	decrypted, err := encryptor.Decrypt(ctx, encrypted, meta)
+	plaintext, err := encryptor.Decrypt(ctx, ciphertext, meta)
 	assert.NoError(t, err)
 
-	assert.Equal(t, []byte("Lorem ipsum"), decrypted)
+	assert.Equal(t, []byte("Lorem ipsum"), plaintext)
 }

@@ -8,8 +8,8 @@ import (
 )
 
 type Encryptor interface {
-	Encrypt(ctx context.Context, value []byte, metadata ...MetadataKV) ([]byte, error)
-	Decrypt(ctx context.Context, encryptedValue []byte, metadata ...MetadataKV) ([]byte, error)
+	Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error)
+	Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error)
 	Close() error
 }
 

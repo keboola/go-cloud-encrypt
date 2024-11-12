@@ -26,7 +26,7 @@ func NewGCPEncryptor(ctx context.Context, keyID string) (*GCPEncryptor, error) {
 	}, nil
 }
 
-func (encryptor *GCPEncryptor) Encrypt(ctx context.Context, value []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *GCPEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
 	additionalData, err := encode(buildMetadataMap(metadata...))
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func (encryptor *GCPEncryptor) Encrypt(ctx context.Context, value []byte, metada
 
 	request := &kmspb.EncryptRequest{
 		Name:                        encryptor.keyID,
-		Plaintext:                   value,
+		Plaintext:                   plaintext,
 		AdditionalAuthenticatedData: additionalData,
 	}
 
@@ -46,7 +46,7 @@ func (encryptor *GCPEncryptor) Encrypt(ctx context.Context, value []byte, metada
 	return response.GetCiphertext(), nil
 }
 
-func (encryptor *GCPEncryptor) Decrypt(ctx context.Context, encryptedValue []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *GCPEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
 	additionalData, err := encode(buildMetadataMap(metadata...))
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (encryptor *GCPEncryptor) Decrypt(ctx context.Context, encryptedValue []byt
 
 	request := &kmspb.DecryptRequest{
 		Name:                        encryptor.keyID,
-		Ciphertext:                  encryptedValue,
+		Ciphertext:                  ciphertext,
 		AdditionalAuthenticatedData: additionalData,
 	}
 
