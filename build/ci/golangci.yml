@@ -108,11 +108,11 @@ linters:
     #- gomoddirectives # allow replace directive in go.mod
     #- misspell - broken, rewrites code
     # TODO
-    #- funlen
+    - funlen
     #- gocyclo
-    #- gocognit
-    #- cyclop
-    #- nestif
+    - gocognit
+    - cyclop
+    - nestif
     #- lll
     #- gomnd
 
