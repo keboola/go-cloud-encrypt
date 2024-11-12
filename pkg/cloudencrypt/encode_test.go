@@ -12,14 +12,14 @@ func TestEncodeDecode(t *testing.T) {
 	secretKey, err := generateSecretKey()
 	assert.NoError(t, err)
 
-	data := make(map[string]string)
-	data["test"] = string(secretKey)
+	data := make(map[string][]byte)
+	data["test"] = secretKey
 
 	encoded, err := encode(data)
 	assert.NoError(t, err)
 	assert.NotNil(t, encoded)
 
-	decoded, err := decode(encoded)
+	decoded, err := decode[map[string][]byte](encoded)
 	assert.NoError(t, err)
 	assert.NotNil(t, decoded)
 

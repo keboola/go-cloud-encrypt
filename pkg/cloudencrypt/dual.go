@@ -47,9 +47,9 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, m
 		return nil, err
 	}
 
-	output := make(map[string]string)
-	output[mapKeySecretKey] = string(encryptedSecretKey)
-	output[mapKeyCipherText] = string(ciphertext)
+	output := make(map[string][]byte)
+	output[mapKeySecretKey] = encryptedSecretKey
+	output[mapKeyCipherText] = ciphertext
 
 	encoded, err := encode(output)
 	if err != nil {
@@ -60,13 +60,13 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, m
 }
 
 func (encryptor *DualEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
-	decoded, err := decode(ciphertext)
+	decoded, err := decode[map[string][]byte](ciphertext)
 	if err != nil {
 		return nil, err
 	}
 
 	// Decrypt the secret key
-	secretKey, err := encryptor.encryptor.Decrypt(ctx, []byte(decoded[mapKeySecretKey]), metadata...)
+	secretKey, err := encryptor.encryptor.Decrypt(ctx, decoded[mapKeySecretKey], metadata...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (encryptor *DualEncryptor) Decrypt(ctx context.Context, ciphertext []byte, 
 
 	defer nativeEncryptor.Close()
 
-	plaintext, err := nativeEncryptor.Decrypt(ctx, []byte(decoded[mapKeyCipherText]), metadata...)
+	plaintext, err := nativeEncryptor.Decrypt(ctx, decoded[mapKeyCipherText], metadata...)
 	if err != nil {
 		return nil, err
 	}

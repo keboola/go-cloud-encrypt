@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func encode(data map[string]string) ([]byte, error) {
+func encode(data any) ([]byte, error) {
 	var buffer bytes.Buffer
 
 	// Base64 encode
@@ -37,23 +37,22 @@ func encode(data map[string]string) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-func decode(data []byte) (map[string]string, error) {
+func decode[T any](data []byte) (decoded T, err error) {
 	// Base64 decode
 	decoder := base64.NewDecoder(base64.StdEncoding, bytes.NewReader(data))
 
 	// Gzip uncompress
 	reader, err := gzip.NewReader(decoder)
 	if err != nil {
-		return nil, errors.Wrapf(err, "can't create gzip reader: %s", err.Error())
+		return decoded, errors.Wrapf(err, "can't create gzip reader: %s", err.Error())
 	}
 
 	defer reader.Close()
 
 	// gob decode
-	var decoded map[string]string
 	err = gob.NewDecoder(reader).Decode(&decoded)
 	if err != nil {
-		return nil, errors.Wrapf(err, "gob decoder failed: %s", err.Error())
+		return decoded, errors.Wrapf(err, "gob decoder failed: %s", err.Error())
 	}
 
 	return decoded, nil
