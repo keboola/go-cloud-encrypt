@@ -1,9 +1,8 @@
 # CI provisioning
 
 ### Prepare necessary AWS resources
-Run the `prepare-aws-resources.sh` script using `CI-KAC-Team` account (use
-`Keboola-CI-KAC-Team-AWSAdministratorAccess` profile). The script prepares resources needed for Terraform
-remote backend and user account to use in CI.
+Run the `prepare-aws-resources.sh` script using `CI-KAC-Team` account (use `Keboola-CI-KAC-Team-AWSAdministratorAccess`
+profile). The script prepares resources needed for Terraform remote backend and user account to use in CI.
 
 ### Prepare cloud resources
 Initialize & run Terraform to create resources for CI. Notice no `tfstate` file is created, it's actually automatically
@@ -29,5 +28,5 @@ terraform apply
 The reason why we do not apply changes automatically in CI is:
 * to run Terraform you need to have pretty high privileges in infra to create all the resources, this way don't need to
   give such privileges to the CI.
-* if you add some new resources in a branch, the branch CI run would create the resource. Then if you run CI for other
+* if you add some new resources in a branch, the branch CI run would create the resource. Then, if you run CI for other
   branch, it would destroy the resource again and so on.
