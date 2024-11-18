@@ -26,8 +26,8 @@ func NewGCPEncryptor(ctx context.Context, keyID string) (*GCPEncryptor, error) {
 	}, nil
 }
 
-func (encryptor *GCPEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
-	additionalData, err := encode(buildMetadataMap(metadata...))
+func (encryptor *GCPEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata Metadata) ([]byte, error) {
+	additionalData, err := encode(metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +46,8 @@ func (encryptor *GCPEncryptor) Encrypt(ctx context.Context, plaintext []byte, me
 	return response.GetCiphertext(), nil
 }
 
-func (encryptor *GCPEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
-	additionalData, err := encode(buildMetadataMap(metadata...))
+func (encryptor *GCPEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata Metadata) ([]byte, error) {
+	additionalData, err := encode(metadata)
 	if err != nil {
 		return nil, err
 	}

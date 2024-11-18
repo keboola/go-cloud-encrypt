@@ -22,13 +22,13 @@ func NewCachedEncryptor(ctx context.Context, encryptor Encryptor, ttl time.Durat
 	}, nil
 }
 
-func (encryptor *CachedEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
-	key, err := encode(buildMetadataMap(metadata...))
+func (encryptor *CachedEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata Metadata) ([]byte, error) {
+	key, err := encode(metadata)
 	if err != nil {
 		return nil, err
 	}
 
-	encryptedValue, err := encryptor.encryptor.Encrypt(ctx, plaintext, metadata...)
+	encryptedValue, err := encryptor.encryptor.Encrypt(ctx, plaintext, metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +40,8 @@ func (encryptor *CachedEncryptor) Encrypt(ctx context.Context, plaintext []byte,
 	return encryptedValue, nil
 }
 
-func (encryptor *CachedEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
-	key, err := encode(buildMetadataMap(metadata...))
+func (encryptor *CachedEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata Metadata) ([]byte, error) {
+	key, err := encode(metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (encryptor *CachedEncryptor) Decrypt(ctx context.Context, ciphertext []byte
 		return cached, nil
 	}
 
-	plaintext, err := encryptor.encryptor.Decrypt(ctx, ciphertext, metadata...)
+	plaintext, err := encryptor.encryptor.Decrypt(ctx, ciphertext, metadata)
 	if err != nil {
 		return nil, err
 	}

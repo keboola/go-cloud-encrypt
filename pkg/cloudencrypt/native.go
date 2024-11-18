@@ -29,8 +29,8 @@ func NewNativeEncryptor(secretKey []byte) (*NativeEncryptor, error) {
 	}, nil
 }
 
-func (encryptor *NativeEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
-	additionalData, err := encode(buildMetadataMap(metadata...))
+func (encryptor *NativeEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata Metadata) ([]byte, error) {
+	additionalData, err := encode(metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +44,8 @@ func (encryptor *NativeEncryptor) Encrypt(ctx context.Context, plaintext []byte,
 	return encryptor.gcm.Seal(nonce, nonce, plaintext, additionalData), nil
 }
 
-func (encryptor *NativeEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
-	additionalData, err := encode(buildMetadataMap(metadata...))
+func (encryptor *NativeEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata Metadata) ([]byte, error) {
+	additionalData, err := encode(metadata)
 	if err != nil {
 		return nil, err
 	}

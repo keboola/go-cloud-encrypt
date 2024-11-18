@@ -27,15 +27,13 @@ func TestAWSEncryptor(t *testing.T) {
 	encryptor, err := NewAWSEncryptor(ctx, region, keyID)
 	require.NoError(t, err)
 
-	meta := MetadataKV{
-		Key:   "metakey",
-		Value: "metavalue",
-	}
+	meta := Metadata{}
+	meta["metakey"] = "metavalue"
 
 	ciphertext, err := encryptor.Encrypt(ctx, []byte("Lorem ipsum"), meta)
 	require.NoError(t, err)
 
-	_, err = encryptor.Decrypt(ctx, ciphertext)
+	_, err = encryptor.Decrypt(ctx, ciphertext, Metadata{})
 	assert.ErrorContains(t, err, "aws decryption failed: operation error KMS: Decrypt")
 
 	plaintext, err := encryptor.Decrypt(ctx, ciphertext, meta)

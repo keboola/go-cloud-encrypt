@@ -21,7 +21,7 @@ func NewDualEncryptor(ctx context.Context, encryptor Encryptor) (*DualEncryptor,
 	}, nil
 }
 
-func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata Metadata) ([]byte, error) {
 	// Generate a random secret key
 	secretKey, err := generateSecretKey()
 	if err != nil {
@@ -34,7 +34,7 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, m
 	}
 
 	// Encrypt the secret key
-	encryptedSecretKey, err := encryptor.encryptor.Encrypt(ctx, secretKey, metadata...)
+	encryptedSecretKey, err := encryptor.encryptor.Encrypt(ctx, secretKey, metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -51,14 +51,14 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, m
 	return encoded, nil
 }
 
-func (encryptor *DualEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *DualEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata Metadata) ([]byte, error) {
 	decoded, err := decode[map[string][]byte](ciphertext)
 	if err != nil {
 		return nil, err
 	}
 
 	// Decrypt the secret key
-	secretKey, err := encryptor.encryptor.Decrypt(ctx, decoded[mapKeySecretKey], metadata...)
+	secretKey, err := encryptor.encryptor.Decrypt(ctx, decoded[mapKeySecretKey], metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (encryptor *DualEncryptor) Close() error {
 	return encryptor.encryptor.Close()
 }
 
-func nativeEncrypt(ctx context.Context, secretKey []byte, plaintext []byte, metadata []MetadataKV) ([]byte, error) {
+func nativeEncrypt(ctx context.Context, secretKey []byte, plaintext []byte, metadata Metadata) ([]byte, error) {
 	nativeEncryptor, err := NewNativeEncryptor(secretKey)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func nativeEncrypt(ctx context.Context, secretKey []byte, plaintext []byte, meta
 	defer nativeEncryptor.Close()
 
 	// Encrypt given plaintext using the random secret key
-	ciphertext, err := nativeEncryptor.Encrypt(ctx, plaintext, metadata...)
+	ciphertext, err := nativeEncryptor.Encrypt(ctx, plaintext, metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func nativeEncrypt(ctx context.Context, secretKey []byte, plaintext []byte, meta
 	return ciphertext, nil
 }
 
-func nativeDecrypt(ctx context.Context, secretKey []byte, ciphertext []byte, metadata []MetadataKV) ([]byte, error) {
+func nativeDecrypt(ctx context.Context, secretKey []byte, ciphertext []byte, metadata Metadata) ([]byte, error) {
 	// Decrypt the value using the decrypted secret key
 	nativeEncryptor, err := NewNativeEncryptor(secretKey)
 	if err != nil {
@@ -101,7 +101,7 @@ func nativeDecrypt(ctx context.Context, secretKey []byte, ciphertext []byte, met
 
 	defer nativeEncryptor.Close()
 
-	plaintext, err := nativeEncryptor.Decrypt(ctx, ciphertext, metadata...)
+	plaintext, err := nativeEncryptor.Decrypt(ctx, ciphertext, metadata)
 	if err != nil {
 		return nil, err
 	}

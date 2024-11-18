@@ -30,7 +30,7 @@ func NewAzureEncryptor(ctx context.Context, vaultBaseURL, keyName string) (*Azur
 	}, nil
 }
 
-func (encryptor *AzureEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *AzureEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata Metadata) ([]byte, error) {
 	algorithm := azkeys.EncryptionAlgorithmRSAOAEP256
 
 	result, err := encryptor.client.Encrypt(
@@ -50,7 +50,7 @@ func (encryptor *AzureEncryptor) Encrypt(ctx context.Context, plaintext []byte, 
 	return result.Result, nil
 }
 
-func (encryptor *AzureEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *AzureEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata Metadata) ([]byte, error) {
 	algorithm := azkeys.EncryptionAlgorithmRSAOAEP256
 
 	result, err := encryptor.client.Decrypt(

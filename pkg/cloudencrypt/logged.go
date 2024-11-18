@@ -18,8 +18,8 @@ func NewLoggedEncryptor(ctx context.Context, encryptor Encryptor, logger *log.Lo
 	}, nil
 }
 
-func (encryptor *LoggedEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
-	encryptedValue, err := encryptor.encryptor.Encrypt(ctx, plaintext, metadata...)
+func (encryptor *LoggedEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata Metadata) ([]byte, error) {
+	encryptedValue, err := encryptor.encryptor.Encrypt(ctx, plaintext, metadata)
 	if err != nil {
 		encryptor.logger.Printf("encryption error: %s", err.Error())
 		return nil, err
@@ -30,8 +30,8 @@ func (encryptor *LoggedEncryptor) Encrypt(ctx context.Context, plaintext []byte,
 	return encryptedValue, nil
 }
 
-func (encryptor *LoggedEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
-	plaintext, err := encryptor.encryptor.Decrypt(ctx, ciphertext, metadata...)
+func (encryptor *LoggedEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata Metadata) ([]byte, error) {
+	plaintext, err := encryptor.encryptor.Decrypt(ctx, ciphertext, metadata)
 	if err != nil {
 		encryptor.logger.Printf("decryption error: %s", err.Error())
 		return nil, err

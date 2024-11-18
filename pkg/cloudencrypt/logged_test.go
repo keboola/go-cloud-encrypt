@@ -27,15 +27,13 @@ func TestLoggedEncryptor(t *testing.T) {
 	encryptor, err := NewLoggedEncryptor(ctx, nativeEncryptor, logger)
 	assert.NoError(t, err)
 
-	meta := MetadataKV{
-		Key:   "metakey",
-		Value: "metavalue",
-	}
+	meta := Metadata{}
+	meta["metakey"] = "metavalue"
 
 	ciphertext, err := encryptor.Encrypt(ctx, []byte("Lorem ipsum"), meta)
 	assert.NoError(t, err)
 
-	_, err = encryptor.Decrypt(ctx, ciphertext)
+	_, err = encryptor.Decrypt(ctx, ciphertext, Metadata{})
 	assert.ErrorContains(t, err, "cipher: message authentication failed")
 
 	plaintext, err := encryptor.Decrypt(ctx, ciphertext, meta)
