@@ -5,14 +5,12 @@ import (
 	"context"
 	"log"
 	"testing"
-	"time"
 
-	"github.com/dgraph-io/ristretto/v2"
 	"github.com/keboola/go-utils/pkg/wildcards"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCacheEncryptor(t *testing.T) {
+func TestLoggedEncryptor(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -26,24 +24,7 @@ func TestCacheEncryptor(t *testing.T) {
 	var buffer bytes.Buffer
 	logger := log.New(&buffer, "", 0)
 
-	logEncryptor, err := NewLogEncryptor(ctx, nativeEncryptor, logger)
-	assert.NoError(t, err)
-
-	config := &ristretto.Config[[]byte, []byte]{
-		NumCounters: 1e4,
-		MaxCost:     1 << 20,
-		BufferItems: 64,
-	}
-
-	cache, err := ristretto.NewCache(config)
-	assert.NoError(t, err)
-
-	encryptor, err := NewCacheEncryptor(
-		ctx,
-		logEncryptor,
-		time.Hour,
-		cache,
-	)
+	encryptor, err := NewLoggedEncryptor(ctx, nativeEncryptor, logger)
 	assert.NoError(t, err)
 
 	meta := MetadataKV{
@@ -53,9 +34,6 @@ func TestCacheEncryptor(t *testing.T) {
 
 	ciphertext, err := encryptor.Encrypt(ctx, []byte("Lorem ipsum"), meta)
 	assert.NoError(t, err)
-
-	// Wait for cached item to be available for get operations
-	cache.Wait()
 
 	_, err = encryptor.Decrypt(ctx, ciphertext)
 	assert.ErrorContains(t, err, "cipher: message authentication failed")
@@ -67,5 +45,6 @@ func TestCacheEncryptor(t *testing.T) {
 
 	wildcards.Assert(t, `encryption success
 decryption error:%s cipher: message authentication failed
+decryption success
 `, buffer.String())
 }

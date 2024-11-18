@@ -7,22 +7,22 @@ import (
 	"github.com/dgraph-io/ristretto/v2"
 )
 
-// CacheEncryptor wraps another Encryptor and adds a caching mechanism.
-type CacheEncryptor struct {
+// CachedEncryptor wraps another Encryptor and adds a caching mechanism.
+type CachedEncryptor struct {
 	encryptor Encryptor
 	cache     *ristretto.Cache[[]byte, []byte]
 	ttl       time.Duration
 }
 
-func NewCacheEncryptor(ctx context.Context, encryptor Encryptor, ttl time.Duration, cache *ristretto.Cache[[]byte, []byte]) (*CacheEncryptor, error) {
-	return &CacheEncryptor{
+func NewCachedEncryptor(ctx context.Context, encryptor Encryptor, ttl time.Duration, cache *ristretto.Cache[[]byte, []byte]) (*CachedEncryptor, error) {
+	return &CachedEncryptor{
 		encryptor: encryptor,
 		cache:     cache,
 		ttl:       ttl,
 	}, nil
 }
 
-func (encryptor *CacheEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *CachedEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
 	key, err := encode(buildMetadataMap(metadata...))
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (encryptor *CacheEncryptor) Encrypt(ctx context.Context, plaintext []byte, 
 	return encryptedValue, nil
 }
 
-func (encryptor *CacheEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *CachedEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
 	key, err := encode(buildMetadataMap(metadata...))
 	if err != nil {
 		return nil, err
@@ -63,6 +63,6 @@ func (encryptor *CacheEncryptor) Decrypt(ctx context.Context, ciphertext []byte,
 	return plaintext, nil
 }
 
-func (encryptor *CacheEncryptor) Close() error {
+func (encryptor *CachedEncryptor) Close() error {
 	return encryptor.encryptor.Close()
 }

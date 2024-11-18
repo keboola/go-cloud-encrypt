@@ -5,20 +5,20 @@ import (
 	"log"
 )
 
-// LogEncryptor wraps another Encryptor and adds logging.
-type LogEncryptor struct {
+// LoggedEncryptor wraps another Encryptor and adds logging.
+type LoggedEncryptor struct {
 	encryptor Encryptor
 	logger    *log.Logger
 }
 
-func NewLogEncryptor(ctx context.Context, encryptor Encryptor, logger *log.Logger) (*LogEncryptor, error) {
-	return &LogEncryptor{
+func NewLoggedEncryptor(ctx context.Context, encryptor Encryptor, logger *log.Logger) (*LoggedEncryptor, error) {
+	return &LoggedEncryptor{
 		encryptor: encryptor,
 		logger:    logger,
 	}, nil
 }
 
-func (encryptor *LogEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *LoggedEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata ...MetadataKV) ([]byte, error) {
 	encryptedValue, err := encryptor.encryptor.Encrypt(ctx, plaintext, metadata...)
 	if err != nil {
 		encryptor.logger.Printf("encryption error: %s", err.Error())
@@ -30,7 +30,7 @@ func (encryptor *LogEncryptor) Encrypt(ctx context.Context, plaintext []byte, me
 	return encryptedValue, nil
 }
 
-func (encryptor *LogEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
+func (encryptor *LoggedEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata ...MetadataKV) ([]byte, error) {
 	plaintext, err := encryptor.encryptor.Decrypt(ctx, ciphertext, metadata...)
 	if err != nil {
 		encryptor.logger.Printf("decryption error: %s", err.Error())
@@ -42,6 +42,6 @@ func (encryptor *LogEncryptor) Decrypt(ctx context.Context, ciphertext []byte, m
 	return plaintext, nil
 }
 
-func (encryptor *LogEncryptor) Close() error {
+func (encryptor *LoggedEncryptor) Close() error {
 	return encryptor.encryptor.Close()
 }
