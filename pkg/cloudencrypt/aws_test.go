@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_AWSEncryptor(t *testing.T) {
+func TestAWSEncryptor(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()

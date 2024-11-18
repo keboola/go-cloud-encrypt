@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_GCPEncryptor(t *testing.T) {
+func TestGCPEncryptor(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()

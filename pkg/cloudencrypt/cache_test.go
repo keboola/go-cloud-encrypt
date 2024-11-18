@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_CacheEncryptor(t *testing.T) {
+func TestCacheEncryptor(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_DualEncryptor(t *testing.T) {
+func TestDualEncryptor(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()

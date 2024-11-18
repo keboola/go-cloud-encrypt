@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_LogEncryptor(t *testing.T) {
+func TestLogEncryptor(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()

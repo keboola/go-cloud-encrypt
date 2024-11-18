@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_AzureEncryptor(t *testing.T) {
+func TestAzureEncryptor(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
