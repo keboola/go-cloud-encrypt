@@ -14,12 +14,9 @@ func TestGCPEncryptor(t *testing.T) {
 
 	ctx := context.Background()
 
-	err := os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", os.Getenv("TEST_GOOGLE_APPLICATION_CREDENTIALS"))
-	require.NoError(t, err)
-
-	keyID := os.Getenv("TEST_GCP_KMS_KEY_ID")
+	keyID := os.Getenv("GCP_KMS_KEY_ID")
 	if keyID == "" {
-		require.Fail(t, "TEST_GCP_KMS_KEY_ID is empty")
+		require.Fail(t, "GCP_KMS_KEY_ID is empty")
 	}
 
 	encryptor, err := NewGCPEncryptor(ctx, keyID)

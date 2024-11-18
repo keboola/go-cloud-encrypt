@@ -14,23 +14,14 @@ func TestAWSEncryptor(t *testing.T) {
 
 	ctx := context.Background()
 
-	err := os.Setenv("AWS_ACCESS_KEY_ID", os.Getenv("TEST_AWS_ACCESS_KEY_ID"))
-	require.NoError(t, err)
-
-	err = os.Setenv("AWS_SECRET_ACCESS_KEY", os.Getenv("TEST_AWS_SECRET_ACCESS_KEY"))
-	require.NoError(t, err)
-
-	err = os.Setenv("AWS_ROLE_ID", os.Getenv("TEST_AWS_ROLE_ID"))
-	require.NoError(t, err)
-
-	region := os.Getenv("TEST_AWS_REGION")
+	region := os.Getenv("AWS_REGION")
 	if region == "" {
-		require.Fail(t, "TEST_AWS_REGION is empty")
+		require.Fail(t, "AWS_REGION is empty")
 	}
 
-	keyID := os.Getenv("TEST_AWS_KMS_KEY_ID")
+	keyID := os.Getenv("AWS_KMS_KEY_ID")
 	if keyID == "" {
-		require.Fail(t, "TEST_AWS_KMS_KEY_ID is empty")
+		require.Fail(t, "AWS_KMS_KEY_ID is empty")
 	}
 
 	encryptor, err := NewAWSEncryptor(ctx, region, keyID)

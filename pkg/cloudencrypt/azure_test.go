@@ -14,23 +14,14 @@ func TestAzureEncryptor(t *testing.T) {
 
 	ctx := context.Background()
 
-	err := os.Setenv("AZURE_TENANT_ID", os.Getenv("TEST_AZURE_TENANT_ID"))
-	require.NoError(t, err)
-
-	err = os.Setenv("AZURE_CLIENT_ID", os.Getenv("TEST_AZURE_CLIENT_ID"))
-	require.NoError(t, err)
-
-	err = os.Setenv("AZURE_CLIENT_SECRET", os.Getenv("TEST_AZURE_CLIENT_SECRET"))
-	require.NoError(t, err)
-
-	vaultURL := os.Getenv("TEST_AZURE_KEY_VAULT_URL")
+	vaultURL := os.Getenv("AZURE_KEY_VAULT_URL")
 	if vaultURL == "" {
-		require.Fail(t, "TEST_AZURE_KEY_VAULT_URL is empty")
+		require.Fail(t, "AZURE_KEY_VAULT_URL is empty")
 	}
 
-	keyName := os.Getenv("TEST_AZURE_KEY_NAME")
+	keyName := os.Getenv("AZURE_KEY_NAME")
 	if keyName == "" {
-		require.Fail(t, "TEST_AZURE_KEY_NAME is empty")
+		require.Fail(t, "AZURE_KEY_NAME is empty")
 	}
 
 	azureEncryptor, err := NewAzureEncryptor(ctx, vaultURL, keyName)

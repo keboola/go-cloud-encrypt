@@ -2,18 +2,18 @@ services:
   ci:
     build: .
     environment:
-      TEST_AZURE_TENANT_ID:
-      TEST_AZURE_CLIENT_ID:
-      TEST_AZURE_CLIENT_SECRET:
-      TEST_AZURE_KEY_VAULT_URL:
-      TEST_AZURE_KEY_NAME:
-      TEST_AWS_REGION:
-      TEST_AWS_ACCESS_KEY_ID:
-      TEST_AWS_SECRET_ACCESS_KEY:
-      TEST_AWS_KMS_KEY_ID:
-      TEST_AWS_ROLE_ID:
-      TEST_GCP_KMS_KEY_ID:
-      TEST_GOOGLE_APPLICATION_CREDENTIALS: /code/var/gcp-private-key.json
+      AZURE_TENANT_ID:
+      AZURE_CLIENT_ID:
+      AZURE_CLIENT_SECRET:
+      AZURE_KEY_VAULT_URL:
+      AZURE_KEY_NAME:
+      AWS_REGION:
+      AWS_ACCESS_KEY_ID:
+      AWS_SECRET_ACCESS_KEY:
+      AWS_KMS_KEY_ID:
+      AWS_ROLE_ID:
+      GCP_KMS_KEY_ID:
+      GOOGLE_APPLICATION_CREDENTIALS: /code/var/gcp-private-key.json
     volumes:
       - ./:/code:z
       - $GOOGLE_APPLICATION_CREDENTIALS:/code/var/gcp-private-key.json
