@@ -28,15 +28,7 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, m
 		return nil, err
 	}
 
-	nativeEncryptor, err := NewNativeEncryptor(secretKey)
-	if err != nil {
-		return nil, err
-	}
-
-	defer nativeEncryptor.Close()
-
-	// Encrypt given plaintext using the random secret key
-	ciphertext, err := nativeEncryptor.Encrypt(ctx, plaintext, metadata...)
+	ciphertext, err := nativeEncrypt(ctx, secretKey, plaintext, metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -71,15 +63,7 @@ func (encryptor *DualEncryptor) Decrypt(ctx context.Context, ciphertext []byte, 
 		return nil, err
 	}
 
-	// Decrypt the value using the decrypted secret key
-	nativeEncryptor, err := NewNativeEncryptor(secretKey)
-	if err != nil {
-		return nil, err
-	}
-
-	defer nativeEncryptor.Close()
-
-	plaintext, err := nativeEncryptor.Decrypt(ctx, decoded[mapKeyCipherText], metadata...)
+	plaintext, err := nativeDecrypt(ctx, secretKey, decoded[mapKeyCipherText], metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -89,6 +73,40 @@ func (encryptor *DualEncryptor) Decrypt(ctx context.Context, ciphertext []byte, 
 
 func (encryptor *DualEncryptor) Close() error {
 	return encryptor.encryptor.Close()
+}
+
+func nativeEncrypt(ctx context.Context, secretKey []byte, plaintext []byte, metadata []MetadataKV) ([]byte, error) {
+	nativeEncryptor, err := NewNativeEncryptor(secretKey)
+	if err != nil {
+		return nil, err
+	}
+
+	defer nativeEncryptor.Close()
+
+	// Encrypt given plaintext using the random secret key
+	ciphertext, err := nativeEncryptor.Encrypt(ctx, plaintext, metadata...)
+	if err != nil {
+		return nil, err
+	}
+
+	return ciphertext, nil
+}
+
+func nativeDecrypt(ctx context.Context, secretKey []byte, ciphertext []byte, metadata []MetadataKV) ([]byte, error) {
+	// Decrypt the value using the decrypted secret key
+	nativeEncryptor, err := NewNativeEncryptor(secretKey)
+	if err != nil {
+		return nil, err
+	}
+
+	defer nativeEncryptor.Close()
+
+	plaintext, err := nativeEncryptor.Decrypt(ctx, ciphertext, metadata...)
+	if err != nil {
+		return nil, err
+	}
+
+	return plaintext, nil
 }
 
 func generateSecretKey() ([]byte, error) {
