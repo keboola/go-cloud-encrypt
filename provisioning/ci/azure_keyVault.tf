@@ -7,7 +7,7 @@ resource "azurerm_key_vault" "go_cloud_encrypt" {
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = azuread_service_principal.go_cloud_encrypt.id
+    object_id = azuread_service_principal.go_cloud_encrypt.object_id
 
     key_permissions = [
       "Get",
@@ -22,6 +22,8 @@ resource "azurerm_key_vault" "go_cloud_encrypt" {
       "Purge",
       "Encrypt",
       "Decrypt",
+      "GetRotationPolicy",
+      "SetRotationPolicy",
     ]
   }
 
@@ -42,6 +44,8 @@ resource "azurerm_key_vault" "go_cloud_encrypt" {
       "Purge",
       "Encrypt",
       "Decrypt",
+      "GetRotationPolicy",
+      "SetRotationPolicy",
     ]
   }
 }
