@@ -8,6 +8,8 @@ import (
 
 	"github.com/keboola/go-utils/pkg/wildcards"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/random"
 )
 
 func TestLoggedEncryptor(t *testing.T) {
@@ -15,7 +17,7 @@ func TestLoggedEncryptor(t *testing.T) {
 
 	ctx := context.Background()
 
-	secretKey, err := generateSecretKey()
+	secretKey, err := random.SecretKey()
 	assert.NoError(t, err)
 
 	nativeEncryptor, err := NewNativeEncryptor(secretKey)

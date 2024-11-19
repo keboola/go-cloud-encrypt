@@ -10,6 +10,8 @@ import (
 	"github.com/dgraph-io/ristretto/v2"
 	"github.com/keboola/go-utils/pkg/wildcards"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/random"
 )
 
 func TestCachedEncryptor(t *testing.T) {
@@ -17,7 +19,7 @@ func TestCachedEncryptor(t *testing.T) {
 
 	ctx := context.Background()
 
-	secretKey, err := generateSecretKey()
+	secretKey, err := random.SecretKey()
 	assert.NoError(t, err)
 
 	nativeEncryptor, err := NewNativeEncryptor(secretKey)

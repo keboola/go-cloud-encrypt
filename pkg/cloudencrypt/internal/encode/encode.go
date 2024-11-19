@@ -1,4 +1,4 @@
-package cloudencrypt
+package encode
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func encode(data any) ([]byte, error) {
+func Encode(data any) ([]byte, error) {
 	var buffer bytes.Buffer
 
 	// Base64 encode
@@ -37,7 +37,7 @@ func encode(data any) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-func decode[T any](data []byte) (decoded T, err error) {
+func Decode[T any](data []byte) (decoded T, err error) {
 	// Base64 decode
 	decoder := base64.NewDecoder(base64.StdEncoding, bytes.NewReader(data))
 

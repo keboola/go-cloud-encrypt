@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/random"
 )
 
 func TestNativeEncryptor(t *testing.T) {
@@ -12,7 +14,7 @@ func TestNativeEncryptor(t *testing.T) {
 
 	ctx := context.Background()
 
-	secretKey, err := generateSecretKey()
+	secretKey, err := random.SecretKey()
 	assert.NoError(t, err)
 
 	encryptor, err := NewNativeEncryptor(secretKey)

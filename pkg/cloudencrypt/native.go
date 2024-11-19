@@ -6,6 +6,9 @@ import (
 	"crypto/cipher"
 
 	"github.com/pkg/errors"
+
+	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/encode"
+	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/random"
 )
 
 // NativeEncryptor Implements Encryptor without using any cloud service.
@@ -30,12 +33,12 @@ func NewNativeEncryptor(secretKey []byte) (*NativeEncryptor, error) {
 }
 
 func (encryptor *NativeEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata Metadata) ([]byte, error) {
-	additionalData, err := encode(metadata)
+	additionalData, err := encode.Encode(metadata)
 	if err != nil {
 		return nil, err
 	}
 
-	nonce, err := randomBytes(encryptor.gcm.NonceSize())
+	nonce, err := random.Bytes(encryptor.gcm.NonceSize())
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +48,7 @@ func (encryptor *NativeEncryptor) Encrypt(ctx context.Context, plaintext []byte,
 }
 
 func (encryptor *NativeEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata Metadata) ([]byte, error) {
-	additionalData, err := encode(metadata)
+	additionalData, err := encode.Encode(metadata)
 	if err != nil {
 		return nil, err
 	}

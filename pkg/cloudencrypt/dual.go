@@ -2,6 +2,9 @@ package cloudencrypt
 
 import (
 	"context"
+
+	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/encode"
+	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/random"
 )
 
 const (
@@ -23,7 +26,7 @@ func NewDualEncryptor(ctx context.Context, encryptor Encryptor) (*DualEncryptor,
 
 func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata Metadata) ([]byte, error) {
 	// Generate a random secret key
-	secretKey, err := generateSecretKey()
+	secretKey, err := random.SecretKey()
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +46,7 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, m
 	output[mapKeySecretKey] = encryptedSecretKey
 	output[mapKeyCipherText] = ciphertext
 
-	encoded, err := encode(output)
+	encoded, err := encode.Encode(output)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +55,7 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, m
 }
 
 func (encryptor *DualEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata Metadata) ([]byte, error) {
-	decoded, err := decode[map[string][]byte](ciphertext)
+	decoded, err := encode.Decode[map[string][]byte](ciphertext)
 	if err != nil {
 		return nil, err
 	}
@@ -107,8 +110,4 @@ func nativeDecrypt(ctx context.Context, secretKey []byte, ciphertext []byte, met
 	}
 
 	return plaintext, nil
-}
-
-func generateSecretKey() ([]byte, error) {
-	return randomBytes(32)
 }
