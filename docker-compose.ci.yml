@@ -10,6 +10,7 @@ services:
       AWS_REGION:
       AWS_ACCESS_KEY_ID:
       AWS_SECRET_ACCESS_KEY:
+      AWS_SESSION_TOKEN:
       AWS_KMS_KEY_ID:
       AWS_ROLE_ID:
       GCP_KMS_KEY_ID:
