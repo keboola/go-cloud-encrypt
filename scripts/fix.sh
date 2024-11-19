@@ -7,7 +7,7 @@ set -o pipefail         # Use last non-zero exit code in a pipeline
 #set -o xtrace          # Trace the execution of the script (debug)
 
 # Check the most important problems first
-if ! go vet ./cloudencrypt/...; then
+if ! go vet ./pkg/...; then
     echo "Please fix ^^^ errors."
     echo
     exit 1
