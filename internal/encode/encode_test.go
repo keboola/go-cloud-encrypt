@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/random"
+	"github.com/keboola/go-cloud-encrypt/internal/random"
 )
 
 func TestEncodeDecode(t *testing.T) {

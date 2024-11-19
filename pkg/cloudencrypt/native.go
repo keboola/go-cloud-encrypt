@@ -7,8 +7,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/encode"
-	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/random"
+	"github.com/keboola/go-cloud-encrypt/internal/encode"
+	"github.com/keboola/go-cloud-encrypt/internal/random"
 )
 
 // NativeEncryptor Implements Encryptor without using any cloud service.

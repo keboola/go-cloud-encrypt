@@ -3,8 +3,8 @@ package cloudencrypt
 import (
 	"context"
 
-	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/encode"
-	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/random"
+	"github.com/keboola/go-cloud-encrypt/internal/encode"
+	"github.com/keboola/go-cloud-encrypt/internal/random"
 )
 
 const (

@@ -7,7 +7,7 @@ import (
 	"cloud.google.com/go/kms/apiv1/kmspb"
 	"github.com/pkg/errors"
 
-	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/encode"
+	"github.com/keboola/go-cloud-encrypt/internal/encode"
 )
 
 // GCPEncryptor Implements Encryptor using Google Cloud's Key Management Service.

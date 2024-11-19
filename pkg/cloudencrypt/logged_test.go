@@ -9,7 +9,7 @@ import (
 	"github.com/keboola/go-utils/pkg/wildcards"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/random"
+	"github.com/keboola/go-cloud-encrypt/internal/random"
 )
 
 func TestLoggedEncryptor(t *testing.T) {

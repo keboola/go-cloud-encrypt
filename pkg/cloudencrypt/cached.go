@@ -6,7 +6,7 @@ import (
 
 	"github.com/dgraph-io/ristretto/v2"
 
-	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt/internal/encode"
+	"github.com/keboola/go-cloud-encrypt/internal/encode"
 )
 
 // CachedEncryptor wraps another Encryptor and adds a caching mechanism.
