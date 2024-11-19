@@ -26,7 +26,7 @@ resource "aws_iam_role" "go_cloud_encrypt" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           }
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:keboola/go-cloud-encrypt:*"
+            "token.actions.githubusercontent.com:sub" = "repo:${local.github_repository}:*"
           }
         }
       },

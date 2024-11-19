@@ -11,6 +11,8 @@ env:
   AWS_REGION: eu-central-1
   AWS_KMS_KEY_ID: f14ac86a-dc61-4544-b1f7-6312773765f0
   AWS_ROLE_ID: arn:aws:iam::831559560923:role/ci-go-cloud-encrypt-role
+  GCP_SERVICE_ACCOUNT: ci-go-cloud-encrypt@go-team-ci.iam.gserviceaccount.com
+  GCP_IDENTITY_PROVIDER: projects/592579407407/locations/global/workloadIdentityPools/ci-go-cloud-encrypt/providers/go-cloud-encrypt
   GCP_KMS_KEY_ID: projects/go-team-ci/locations/global/keyRings/ci-go-cloud-encrypt/cryptoKeys/ci-go-cloud-encrypt
 
 # Required for aws-actions/configure-aws-credentials using OIDC, assume role
@@ -34,8 +36,8 @@ jobs:
       - name: Google Login
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.TEST_GCP_SERVICE_ACCOUNT_KEY }}
-          export_environment_variables: true
+          workload_identity_provider: ${{ env.GCP_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
           create_credentials_file: true
 
       - name: Build image

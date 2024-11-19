@@ -27,3 +27,7 @@ terraform {
 variable "name_prefix" {
   type = string
 }
+
+locals {
+  github_repository = "keboola/go-cloud-encrypt"
+}
