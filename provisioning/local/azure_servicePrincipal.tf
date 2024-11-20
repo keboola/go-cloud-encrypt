@@ -4,8 +4,8 @@ resource "azuread_application" "go_cloud_encrypt" {
 }
 
 resource "azuread_service_principal" "go_cloud_encrypt" {
-  application_id = azuread_application.go_cloud_encrypt.application_id
-  owners         = [data.azuread_client_config.current.object_id]
+  client_id = azuread_application.go_cloud_encrypt.client_id
+  owners    = [data.azuread_client_config.current.object_id]
 }
 
 resource "azuread_service_principal_password" "go_cloud_encrypt" {
@@ -13,7 +13,7 @@ resource "azuread_service_principal_password" "go_cloud_encrypt" {
 }
 
 output "az_application_id" {
-  value = azuread_application.go_cloud_encrypt.application_id
+  value = azuread_application.go_cloud_encrypt.client_id
 }
 
 output "az_application_secret" {
