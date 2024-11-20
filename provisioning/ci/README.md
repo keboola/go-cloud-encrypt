@@ -1,7 +1,7 @@
 # CI provisioning
 
-### Prepare necessary AWS resources
-Run the `prepare-aws-resources.sh` script using `CI-KAC-Team` account (use `Keboola-CI-KAC-Team-AWSAdministratorAccess`
+### Prepare necessary Terraform remote state resources
+Run the `prepare-terraform-remote-state.sh` script using `CI-KAC-Team` account (use `Keboola-CI-KAC-Team-AWSAdministratorAccess`
 profile). The script prepares resources needed for Terraform remote backend and user account to use in CI.
 
 ### Prepare cloud resources
