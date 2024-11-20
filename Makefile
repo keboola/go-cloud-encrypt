@@ -1,3 +1,5 @@
+TEST_ARGS?=-v
+
 tools:
 	bash ./scripts/tools.sh
 
@@ -8,7 +10,7 @@ fix:
 	bash ./scripts/fix.sh
 
 tests:
-	gotestsum --no-color=false --format testname -- -timeout 600s -p 8 -parallel 8 -v -race -coverprofile=/tmp/profile.out ./pkg/...
+	gotestsum --no-color=false --format testname -- -timeout 600s -p 8 -parallel 8 -race -coverprofile=/tmp/profile.out ${TEST_ARGS} ./pkg/...
 
 godoc:
 	godoc -http=0.0.0.0:6060
