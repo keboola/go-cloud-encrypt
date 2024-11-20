@@ -30,4 +30,5 @@ variable "name_prefix" {
 
 locals {
   github_repository = "keboola/go-cloud-encrypt"
+  github_actions_principal = "principalSet://iam.googleapis.com/projects/594833180351/locations/global/workloadIdentityPools/github/attribute.repository/${local.github_repository}"
 }

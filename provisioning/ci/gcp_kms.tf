@@ -18,6 +18,16 @@ resource "google_kms_crypto_key" "go_cloud_encrypt_key" {
   }
 }
 
+resource "google_kms_crypto_key_iam_binding" "go_cloud_encrypt_iam" {
+  crypto_key_id = google_kms_crypto_key.go_cloud_encrypt_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  members = [
+    local.github_actions_principal
+  ]
+}
+
+
 output "gcp_kms_key_id" {
   value = google_kms_crypto_key.go_cloud_encrypt_key.id
 }
