@@ -1,0 +1,135 @@
+run:
+  timeout: 15m
+  concurrency: 8
+  max-issues-per-linter: 0
+  # Maximum count of issues with the same text.
+  max-same-issues: 0
+  tests: true # check test files
+  modules-download-mode: mod
+
+output:
+  sort-results: true
+
+linters-settings:
+  # Prevent updating goa generated code due to linter update
+  misspell:
+    ignore-words:
+      - Statuser
+  # Errors from the project can be returned without wrapping
+  wrapcheck:
+    ignorePackageGlobs:
+      - github.com/keboola/go-cloud-encrypt/*
+  # Gci - improved version of goimports
+  gci:
+    sections:
+      - standard # Captures all standard packages if they do not match another section.
+      - default # Contains all imports that could not be matched to another section type.
+      - prefix(github.com/keboola/go-cloud-encrypt)
+
+  gocyclo:
+    # minimal code complexity to report, 30 by default (but we recommend 10-20)
+    min-complexity: 10
+
+  dupl:
+    threshold: 500
+
+  # Forbidden constructions
+  forbidigo:
+    # Instead of matching the literal source code, use real package name.
+    analyze-types: true
+    forbid:
+      # No debug statements
+      - p: ^(fmt\.Print.*|print|println)$
+        msg: Debug statements are forbidden, use a logger, not debug statements.
+
+  stylecheck:
+    checks:
+      - all
+
+  exhaustive:
+    check-generated: true
+    default-signifies-exhaustive: true
+
+# https://golangci-lint.run/usage/linters
+linters:
+  disable-all: true
+  enable:
+    - asciicheck
+    - bodyclose
+    - contextcheck
+    - dogsled
+    - dupl
+    - durationcheck
+    - errcheck
+    - errname
+    - errorlint
+    - exhaustive
+    - copyloopvar
+    - forbidigo
+    - gci
+    - gochecknoglobals
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - godot
+    - godox
+    - gofumpt
+    - goheader
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - importas
+    - ineffassign
+    - makezero
+    - nakedret
+    - nilerr
+    - noctx
+    - predeclared
+    - promlinter
+    - rowserrcheck
+    - sqlclosecheck
+    - staticcheck
+    - stylecheck
+    - tagliatelle
+    - thelper
+    - tparallel
+    - paralleltest
+    - unconvert
+    - unparam
+    - unused
+    - wastedassign
+    - whitespace
+    # DISABLED
+    #- goimports # replaced with gci
+    #- gofmt # replaced with gofumpt
+    #- nolintlint # strange behavior
+    #- gomoddirectives # allow replace directive in go.mod
+    #- misspell - broken, rewrites code
+    # TODO
+    - funlen
+    #- gocyclo
+    - gocognit
+    - cyclop
+    - nestif
+    #- lll
+    #- gomnd
+
+issues:
+  max-same-issues: 25
+
+  # Excluding configuration per-path, per-linter, per-text and per-source
+  exclude-rules:
+    # Exclude some linters from running on tests files.
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - goconst
+        - gosec
+        - gochecknoglobals
+        - errcheck
+        - errorlint
+        - dupl
+        - dogsled
+        - bodyclose

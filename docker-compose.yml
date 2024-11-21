@@ -1,0 +1,10 @@
+services:
+  dev:
+    build: .
+    volumes:
+      - ./:/code:z
+      - cache:/tmp/cache
+    env_file: .env.local
+
+volumes:
+  cache:

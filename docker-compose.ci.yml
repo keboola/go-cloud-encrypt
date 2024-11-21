@@ -1,0 +1,20 @@
+services:
+  ci:
+    build: .
+    environment:
+      AZURE_TENANT_ID:
+      AZURE_CLIENT_ID:
+      AZURE_CLIENT_SECRET:
+      AZURE_KEY_VAULT_URL:
+      AZURE_KEY_NAME:
+      AWS_REGION:
+      AWS_ACCESS_KEY_ID:
+      AWS_SECRET_ACCESS_KEY:
+      AWS_SESSION_TOKEN:
+      AWS_KMS_KEY_ID:
+      AWS_ROLE_ID:
+      GCP_KMS_KEY_ID:
+      GOOGLE_APPLICATION_CREDENTIALS: /code/var/gcp-private-key.json
+    volumes:
+      - ./:/code:z
+      - $GOOGLE_APPLICATION_CREDENTIALS:/code/var/gcp-private-key.json

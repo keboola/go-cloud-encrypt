@@ -1,0 +1,5 @@
+region = "eu-central-1"
+dynamodb_table = "ci-go-cloud-encrypt-terraform-table"
+bucket = "ci-go-cloud-encrypt-terraform-bucket"
+key = "terraform.tfstate"
+encrypt = true

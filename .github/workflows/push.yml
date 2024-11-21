@@ -1,0 +1,48 @@
+name: GitHub Actions
+on: [ push ]
+concurrency: ci
+
+env:
+  AZURE_TENANT_ID: 9b85ee6f-4fb0-4a46-8cb7-4dcc6b262a89
+  AZURE_CLIENT_ID: 018b2e1a-41f3-48cf-a3b6-dd93f74c6d2f
+  AZURE_CLIENT_SECRET: ${{ secrets.TEST_AZURE_CLIENT_SECRET }}
+  AZURE_KEY_VAULT_URL: https://ci-go-cloud-encrypt.vault.azure.net/
+  AZURE_KEY_NAME: ci-go-cloud-encrypt
+  AWS_REGION: eu-central-1
+  AWS_KMS_KEY_ID: f14ac86a-dc61-4544-b1f7-6312773765f0
+  AWS_ROLE_ID: arn:aws:iam::831559560923:role/ci-go-cloud-encrypt-role
+  GCP_IDENTITY_PROVIDER: projects/594833180351/locations/global/workloadIdentityPools/github/providers/keboola
+  GCP_KMS_KEY_ID: projects/go-team-ci/locations/global/keyRings/ci-go-cloud-encrypt/cryptoKeys/ci-go-cloud-encrypt
+
+# Required for aws-actions/configure-aws-credentials using OIDC, assume role
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: AWS Login
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ID }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Google Login
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.GCP_IDENTITY_PROVIDER }}
+          create_credentials_file: true
+
+      - name: Build image
+        run: |
+          docker login --username "$DOCKERHUB_USER" --password "$DOCKERHUB_TOKEN"
+          docker compose -f docker-compose.ci.yml build
+
+      - name: Run tests
+        run: |
+          docker compose -f docker-compose.ci.yml run ci go test ./...
