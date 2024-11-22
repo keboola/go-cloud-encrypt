@@ -1,4 +1,4 @@
-package cloudencrypt
+package cloudencrypt_test
 
 import (
 	"context"
@@ -7,6 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt"
 )
 
 func TestAzureEncryptor(t *testing.T) {
@@ -24,19 +26,19 @@ func TestAzureEncryptor(t *testing.T) {
 		require.Fail(t, "AZURE_KEY_NAME is empty")
 	}
 
-	azureEncryptor, err := NewAzureEncryptor(ctx, vaultURL, keyName)
+	azureEncryptor, err := cloudencrypt.NewAzureEncryptor(ctx, vaultURL, keyName)
 	require.NoError(t, err)
 
-	encryptor, err := NewDualEncryptor(ctx, azureEncryptor)
+	encryptor, err := cloudencrypt.NewDualEncryptor(ctx, azureEncryptor)
 	require.NoError(t, err)
 
-	meta := Metadata{}
+	meta := cloudencrypt.Metadata{}
 	meta["metakey"] = "metavalue"
 
 	ciphertext, err := encryptor.Encrypt(ctx, []byte("Lorem ipsum"), meta)
 	require.NoError(t, err)
 
-	_, err = encryptor.Decrypt(ctx, ciphertext, Metadata{})
+	_, err = encryptor.Decrypt(ctx, ciphertext, cloudencrypt.Metadata{})
 	assert.ErrorContains(t, err, "decryption failed")
 
 	plaintext, err := encryptor.Decrypt(ctx, ciphertext, meta)

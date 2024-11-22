@@ -1,4 +1,4 @@
-package cloudencrypt
+package cloudencrypt_test
 
 import (
 	"context"
@@ -7,6 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt"
 )
 
 func TestAWSEncryptor(t *testing.T) {
@@ -24,16 +26,16 @@ func TestAWSEncryptor(t *testing.T) {
 		require.Fail(t, "AWS_KMS_KEY_ID is empty")
 	}
 
-	encryptor, err := NewAWSEncryptor(ctx, region, keyID)
+	encryptor, err := cloudencrypt.NewAWSEncryptor(ctx, region, keyID)
 	require.NoError(t, err)
 
-	meta := Metadata{}
+	meta := cloudencrypt.Metadata{}
 	meta["metakey"] = "metavalue"
 
 	ciphertext, err := encryptor.Encrypt(ctx, []byte("Lorem ipsum"), meta)
 	require.NoError(t, err)
 
-	_, err = encryptor.Decrypt(ctx, ciphertext, Metadata{})
+	_, err = encryptor.Decrypt(ctx, ciphertext, cloudencrypt.Metadata{})
 	assert.ErrorContains(t, err, "aws decryption failed: operation error KMS: Decrypt")
 
 	plaintext, err := encryptor.Decrypt(ctx, ciphertext, meta)

@@ -1,10 +1,11 @@
-package encode
+package encode_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/keboola/go-cloud-encrypt/internal/encode"
 	"github.com/keboola/go-cloud-encrypt/internal/random"
 )
 
@@ -17,11 +18,11 @@ func TestEncodeDecode(t *testing.T) {
 	data := make(map[string][]byte)
 	data["test"] = secretKey
 
-	encoded, err := Encode(data)
+	encoded, err := encode.Encode(data)
 	assert.NoError(t, err)
 	assert.NotNil(t, encoded)
 
-	decoded, err := Decode[map[string][]byte](encoded)
+	decoded, err := encode.Decode[map[string][]byte](encoded)
 	assert.NoError(t, err)
 	assert.NotNil(t, decoded)
 
