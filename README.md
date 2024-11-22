@@ -33,7 +33,9 @@ func CreateEncryptor(ctx context.Context) (*cloudencrypt.Encryptor, error) {
 		return nil, err
 	}
 
-	encryptor, err := cloudencrypt.NewGCPEncryptor(ctx, os.Getenv("GCP_KMS_KEY_ID"))
+	var encryptor cloudencrypt.Encryptor
+
+	encryptor, err = cloudencrypt.NewGCPEncryptor(ctx, os.Getenv("GCP_KMS_KEY_ID"))
 	if err != nil {
 		return nil, err
 	}
