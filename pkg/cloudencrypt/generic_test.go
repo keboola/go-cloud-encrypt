@@ -10,7 +10,12 @@ import (
 	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt"
 )
 
-func TestNativeEncryptor(t *testing.T) {
+type myStruct struct {
+	Number int
+	Text   string
+}
+
+func TestGenericEncryptor(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -21,17 +26,24 @@ func TestNativeEncryptor(t *testing.T) {
 	encryptor, err := cloudencrypt.NewNativeEncryptor(secretKey)
 	assert.NoError(t, err)
 
+	myStructEncryptor := cloudencrypt.NewGenericEncryptor[myStruct](encryptor)
+
 	meta := cloudencrypt.Metadata{}
 	meta["metakey"] = "metavalue"
 
-	ciphertext, err := encryptor.Encrypt(ctx, []byte("Lorem ipsum"), meta)
+	data := myStruct{
+		Number: 42,
+		Text:   "Lorem ipsum",
+	}
+
+	ciphertext, err := myStructEncryptor.Encrypt(ctx, data, meta)
 	assert.NoError(t, err)
 
-	_, err = encryptor.Decrypt(ctx, ciphertext, cloudencrypt.Metadata{})
+	_, err = myStructEncryptor.Decrypt(ctx, ciphertext, cloudencrypt.Metadata{})
 	assert.ErrorContains(t, err, "cipher: message authentication failed")
 
-	plaintext, err := encryptor.Decrypt(ctx, ciphertext, meta)
+	decrypted, err := myStructEncryptor.Decrypt(ctx, ciphertext, meta)
 	assert.NoError(t, err)
 
-	assert.Equal(t, []byte("Lorem ipsum"), plaintext)
+	assert.Equal(t, data, decrypted)
 }

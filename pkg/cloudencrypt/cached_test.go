@@ -1,4 +1,4 @@
-package cloudencrypt
+package cloudencrypt_test
 
 import (
 	"bytes"
@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/keboola/go-cloud-encrypt/internal/random"
+	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt"
 )
 
 func TestCachedEncryptor(t *testing.T) {
@@ -22,13 +23,13 @@ func TestCachedEncryptor(t *testing.T) {
 	secretKey, err := random.SecretKey()
 	assert.NoError(t, err)
 
-	nativeEncryptor, err := NewNativeEncryptor(secretKey)
+	nativeEncryptor, err := cloudencrypt.NewNativeEncryptor(secretKey)
 	assert.NoError(t, err)
 
 	var buffer bytes.Buffer
 	logger := log.New(&buffer, "", 0)
 
-	logEncryptor, err := NewLoggedEncryptor(ctx, nativeEncryptor, logger)
+	logEncryptor, err := cloudencrypt.NewLoggedEncryptor(ctx, nativeEncryptor, logger)
 	assert.NoError(t, err)
 
 	config := &ristretto.Config[[]byte, []byte]{
@@ -40,7 +41,7 @@ func TestCachedEncryptor(t *testing.T) {
 	cache, err := ristretto.NewCache(config)
 	assert.NoError(t, err)
 
-	encryptor, err := NewCachedEncryptor(
+	encryptor, err := cloudencrypt.NewCachedEncryptor(
 		ctx,
 		logEncryptor,
 		time.Hour,
@@ -48,7 +49,7 @@ func TestCachedEncryptor(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	meta := Metadata{}
+	meta := cloudencrypt.Metadata{}
 	meta["metakey"] = "metavalue"
 
 	ciphertext, err := encryptor.Encrypt(ctx, []byte("Lorem ipsum"), meta)
@@ -57,7 +58,7 @@ func TestCachedEncryptor(t *testing.T) {
 	// Wait for cached item to be available for get operations
 	cache.Wait()
 
-	_, err = encryptor.Decrypt(ctx, ciphertext, Metadata{})
+	_, err = encryptor.Decrypt(ctx, ciphertext, cloudencrypt.Metadata{})
 	assert.ErrorContains(t, err, "cipher: message authentication failed")
 
 	plaintext, err := encryptor.Decrypt(ctx, ciphertext, meta)
