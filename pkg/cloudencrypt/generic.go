@@ -10,8 +10,8 @@ type GenericEncryptor[T any] struct {
 	encryptor Encryptor
 }
 
-func NewGenericEncryptor[T any](encryptor Encryptor) GenericEncryptor[T] {
-	return GenericEncryptor[T]{encryptor}
+func NewGenericEncryptor[T any](encryptor Encryptor) *GenericEncryptor[T] {
+	return &GenericEncryptor[T]{encryptor}
 }
 
 func (encryptor *GenericEncryptor[T]) Encrypt(ctx context.Context, data T, metadata Metadata) ([]byte, error) {
