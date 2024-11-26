@@ -41,13 +41,11 @@ func TestCachedEncryptor(t *testing.T) {
 	cache, err := ristretto.NewCache(config)
 	assert.NoError(t, err)
 
-	encryptor, err := cloudencrypt.NewCachedEncryptor(
-		ctx,
+	encryptor := cloudencrypt.NewCachedEncryptor(
 		logEncryptor,
 		time.Hour,
 		cache,
 	)
-	assert.NoError(t, err)
 
 	meta := cloudencrypt.Metadata{}
 	meta["metakey"] = "metavalue"

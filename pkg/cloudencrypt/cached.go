@@ -16,12 +16,12 @@ type CachedEncryptor struct {
 	ttl       time.Duration
 }
 
-func NewCachedEncryptor(ctx context.Context, encryptor Encryptor, ttl time.Duration, cache *ristretto.Cache[[]byte, []byte]) (*CachedEncryptor, error) {
+func NewCachedEncryptor(encryptor Encryptor, ttl time.Duration, cache *ristretto.Cache[[]byte, []byte]) *CachedEncryptor {
 	return &CachedEncryptor{
 		encryptor: encryptor,
 		cache:     cache,
 		ttl:       ttl,
-	}, nil
+	}
 }
 
 func (encryptor *CachedEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata Metadata) ([]byte, error) {
