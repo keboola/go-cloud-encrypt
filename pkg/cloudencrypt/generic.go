@@ -3,7 +3,7 @@ package cloudencrypt
 import (
 	"context"
 
-	"github.com/keboola/go-cloud-encrypt/internal/encode"
+	"github.com/keboola/go-cloud-encrypt/internal/serialize"
 )
 
 type GenericEncryptor[T any] struct {
@@ -15,7 +15,7 @@ func NewGenericEncryptor[T any](encryptor Encryptor) *GenericEncryptor[T] {
 }
 
 func (encryptor *GenericEncryptor[T]) Encrypt(ctx context.Context, data T, metadata Metadata) ([]byte, error) {
-	plaintext, err := encode.Encode(data)
+	plaintext, err := serialize.Serialize(data)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (encryptor *GenericEncryptor[T]) Decrypt(ctx context.Context, ciphertext []
 		return result, err
 	}
 
-	result, err = encode.Decode[T](plaintext)
+	result, err = serialize.Deserialize[T](plaintext)
 	if err != nil {
 		return result, err
 	}

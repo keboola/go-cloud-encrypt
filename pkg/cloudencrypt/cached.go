@@ -6,7 +6,7 @@ import (
 
 	"github.com/dgraph-io/ristretto/v2"
 
-	"github.com/keboola/go-cloud-encrypt/internal/encode"
+	"github.com/keboola/go-cloud-encrypt/internal/metadata"
 )
 
 // CachedEncryptor wraps another Encryptor and adds a caching mechanism.
@@ -24,13 +24,13 @@ func NewCachedEncryptor(encryptor Encryptor, ttl time.Duration, cache *ristretto
 	}
 }
 
-func (encryptor *CachedEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata Metadata) ([]byte, error) {
-	key, err := encode.Encode(metadata)
+func (encryptor *CachedEncryptor) Encrypt(ctx context.Context, plaintext []byte, meta Metadata) ([]byte, error) {
+	key, err := metadata.Encode(meta)
 	if err != nil {
 		return nil, err
 	}
 
-	encryptedValue, err := encryptor.encryptor.Encrypt(ctx, plaintext, metadata)
+	encryptedValue, err := encryptor.encryptor.Encrypt(ctx, plaintext, meta)
 	if err != nil {
 		return nil, err
 	}
@@ -42,8 +42,8 @@ func (encryptor *CachedEncryptor) Encrypt(ctx context.Context, plaintext []byte,
 	return encryptedValue, nil
 }
 
-func (encryptor *CachedEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata Metadata) ([]byte, error) {
-	key, err := encode.Encode(metadata)
+func (encryptor *CachedEncryptor) Decrypt(ctx context.Context, ciphertext []byte, meta Metadata) ([]byte, error) {
+	key, err := metadata.Encode(meta)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (encryptor *CachedEncryptor) Decrypt(ctx context.Context, ciphertext []byte
 		return cached, nil
 	}
 
-	plaintext, err := encryptor.encryptor.Decrypt(ctx, ciphertext, metadata)
+	plaintext, err := encryptor.encryptor.Decrypt(ctx, ciphertext, meta)
 	if err != nil {
 		return nil, err
 	}
