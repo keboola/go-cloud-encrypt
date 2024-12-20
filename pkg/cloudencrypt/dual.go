@@ -3,8 +3,8 @@ package cloudencrypt
 import (
 	"context"
 
-	"github.com/keboola/go-cloud-encrypt/internal/encode"
 	"github.com/keboola/go-cloud-encrypt/internal/random"
+	"github.com/keboola/go-cloud-encrypt/internal/serialize"
 )
 
 const (
@@ -46,7 +46,7 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, m
 	output[mapKeySecretKey] = encryptedSecretKey
 	output[mapKeyCipherText] = ciphertext
 
-	encoded, err := encode.Encode(output)
+	encoded, err := serialize.Serialize(output)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, m
 }
 
 func (encryptor *DualEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata Metadata) ([]byte, error) {
-	decoded, err := encode.Decode[map[string][]byte](ciphertext)
+	decoded, err := serialize.Deserialize[map[string][]byte](ciphertext)
 	if err != nil {
 		return nil, err
 	}
