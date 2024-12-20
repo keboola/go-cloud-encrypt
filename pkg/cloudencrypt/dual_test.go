@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/keboola/go-cloud-encrypt/internal/random"
 	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt"
@@ -26,15 +27,17 @@ func TestDualEncryptor(t *testing.T) {
 
 	meta := cloudencrypt.Metadata{}
 	meta["metakey"] = "metavalue"
+	meta["a"] = "a"
+	meta["metakey2"] = "metavalue2"
 
 	ciphertext, err := encryptor.Encrypt(ctx, []byte("Lorem ipsum"), meta)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = encryptor.Decrypt(ctx, ciphertext, cloudencrypt.Metadata{})
-	assert.ErrorContains(t, err, "cipher: message authentication failed")
+	require.ErrorContains(t, err, "cipher: message authentication failed")
 
 	plaintext, err := encryptor.Decrypt(ctx, ciphertext, meta)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, []byte("Lorem ipsum"), plaintext)
 }

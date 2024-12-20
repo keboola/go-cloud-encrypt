@@ -1,6 +1,7 @@
 package encode_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,14 +18,21 @@ func TestEncodeDecode(t *testing.T) {
 
 	data := make(map[string][]byte)
 	data["test"] = secretKey
+	data["a"] = secretKey
+	data["test2"] = secretKey
 
 	encoded, err := encode.Encode(data)
 	assert.NoError(t, err)
 	assert.NotNil(t, encoded)
 
+	fmt.Println(string(encoded))
+
 	decoded, err := encode.Decode[map[string][]byte](encoded)
 	assert.NoError(t, err)
 	assert.NotNil(t, decoded)
+	for k, v := range decoded {
+		fmt.Println(k, string(v))
+	}
 
 	assert.Equal(t, data, decoded)
 }
