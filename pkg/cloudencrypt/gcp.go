@@ -2,12 +2,11 @@ package cloudencrypt
 
 import (
 	"context"
+	"encoding/json"
 
 	kms "cloud.google.com/go/kms/apiv1"
 	"cloud.google.com/go/kms/apiv1/kmspb"
 	"github.com/pkg/errors"
-
-	"github.com/keboola/go-cloud-encrypt/internal/metadata"
 )
 
 // GCPEncryptor Implements Encryptor using Google Cloud's Key Management Service.
@@ -29,7 +28,7 @@ func NewGCPEncryptor(ctx context.Context, keyID string) (*GCPEncryptor, error) {
 }
 
 func (encryptor *GCPEncryptor) Encrypt(ctx context.Context, plaintext []byte, meta Metadata) ([]byte, error) {
-	additionalData, err := metadata.Encode(meta)
+	additionalData, err := json.Marshal(meta)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +48,7 @@ func (encryptor *GCPEncryptor) Encrypt(ctx context.Context, plaintext []byte, me
 }
 
 func (encryptor *GCPEncryptor) Decrypt(ctx context.Context, ciphertext []byte, meta Metadata) ([]byte, error) {
-	additionalData, err := metadata.Encode(meta)
+	additionalData, err := json.Marshal(meta)
 	if err != nil {
 		return nil, err
 	}

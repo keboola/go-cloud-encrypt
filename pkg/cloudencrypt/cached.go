@@ -2,11 +2,10 @@ package cloudencrypt
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/dgraph-io/ristretto/v2"
-
-	"github.com/keboola/go-cloud-encrypt/internal/metadata"
 )
 
 // CachedEncryptor wraps another Encryptor and adds a caching mechanism.
@@ -25,7 +24,7 @@ func NewCachedEncryptor(encryptor Encryptor, ttl time.Duration, cache *ristretto
 }
 
 func (encryptor *CachedEncryptor) Encrypt(ctx context.Context, plaintext []byte, meta Metadata) ([]byte, error) {
-	key, err := metadata.Encode(meta)
+	key, err := json.Marshal(meta)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +42,7 @@ func (encryptor *CachedEncryptor) Encrypt(ctx context.Context, plaintext []byte,
 }
 
 func (encryptor *CachedEncryptor) Decrypt(ctx context.Context, ciphertext []byte, meta Metadata) ([]byte, error) {
-	key, err := metadata.Encode(meta)
+	key, err := json.Marshal(meta)
 	if err != nil {
 		return nil, err
 	}
