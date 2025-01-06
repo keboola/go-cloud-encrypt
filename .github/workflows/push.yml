@@ -43,6 +43,25 @@ jobs:
           docker login --username "$DOCKERHUB_USER" --password "$DOCKERHUB_TOKEN"
           docker compose -f docker-compose.ci.yml build
 
+      - name: Extract GO_VERSION from go.mod file
+        shell: bash
+        run: sed -En 's/^go[[:space:]]+([[:digit:].]+)$/GO_VERSION=\1/p' go.mod >> $GITHUB_ENV
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+
+      - name: Install tools
+        run: |
+          echo "Installing tools ..."
+          ./scripts/tools.sh
+
+      - name: Lint
+        run: |
+          make lint
+
       - name: Run tests
         run: |
           docker compose -f docker-compose.ci.yml run ci go test ./...
