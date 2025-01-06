@@ -4,10 +4,10 @@ import (
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
+	"encoding/json"
 
 	"github.com/pkg/errors"
 
-	"github.com/keboola/go-cloud-encrypt/internal/metadata"
 	"github.com/keboola/go-cloud-encrypt/internal/random"
 )
 
@@ -33,7 +33,7 @@ func NewNativeEncryptor(secretKey []byte) (*NativeEncryptor, error) {
 }
 
 func (encryptor *NativeEncryptor) Encrypt(ctx context.Context, plaintext []byte, meta Metadata) ([]byte, error) {
-	additionalData, err := metadata.Encode(meta)
+	additionalData, err := json.Marshal(meta)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (encryptor *NativeEncryptor) Encrypt(ctx context.Context, plaintext []byte,
 }
 
 func (encryptor *NativeEncryptor) Decrypt(ctx context.Context, ciphertext []byte, meta Metadata) ([]byte, error) {
-	additionalData, err := metadata.Encode(meta)
+	additionalData, err := json.Marshal(meta)
 	if err != nil {
 		return nil, err
 	}
