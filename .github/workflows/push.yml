@@ -11,6 +11,7 @@ env:
   AWS_REGION: eu-central-1
   AWS_KMS_KEY_ID: f14ac86a-dc61-4544-b1f7-6312773765f0
   AWS_ROLE_ID: arn:aws:iam::831559560923:role/ci-go-cloud-encrypt-role
+  GCP_PROJECT_ID: go-team-ci
   GCP_IDENTITY_PROVIDER: projects/594833180351/locations/global/workloadIdentityPools/github/providers/keboola
   GCP_KMS_KEY_ID: projects/go-team-ci/locations/global/keyRings/ci-go-cloud-encrypt/cryptoKeys/ci-go-cloud-encrypt
 
@@ -35,6 +36,7 @@ jobs:
       - name: Google Login
         uses: google-github-actions/auth@v2
         with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
           workload_identity_provider: ${{ env.GCP_IDENTITY_PROVIDER }}
           create_credentials_file: true
 
