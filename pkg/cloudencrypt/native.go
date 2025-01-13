@@ -13,10 +13,21 @@ import (
 
 // NativeEncryptor Implements Encryptor without using any cloud service.
 type NativeEncryptor struct {
-	gcm cipher.AEAD
+	gcm       cipher.AEAD
+	generator NonceGenerator
 }
 
+type NonceGenerator func(int) ([]byte, error)
+
 func NewNativeEncryptor(secretKey []byte) (*NativeEncryptor, error) {
+	return NewNativeEncryptorWithNonceGenerator(secretKey, random.Bytes)
+}
+
+func NewNativeEncryptorWithNonceGenerator(secretKey []byte, generator NonceGenerator) (*NativeEncryptor, error) {
+	if generator == nil {
+		return nil, errors.New("missing nonce generator")
+	}
+
 	aesCipher, err := aes.NewCipher(secretKey)
 	if err != nil {
 		return nil, errors.Wrapf(err, "can't create aes cipher: %s", err.Error())
@@ -28,7 +39,8 @@ func NewNativeEncryptor(secretKey []byte) (*NativeEncryptor, error) {
 	}
 
 	return &NativeEncryptor{
-		gcm: gcm,
+		gcm:       gcm,
+		generator: generator,
 	}, nil
 }
 
@@ -38,7 +50,7 @@ func (encryptor *NativeEncryptor) Encrypt(ctx context.Context, plaintext []byte,
 		return nil, err
 	}
 
-	nonce, err := random.Bytes(encryptor.gcm.NonceSize())
+	nonce, err := encryptor.generator(encryptor.gcm.NonceSize())
 	if err != nil {
 		return nil, err
 	}
