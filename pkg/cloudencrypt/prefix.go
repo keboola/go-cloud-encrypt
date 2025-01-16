@@ -14,7 +14,8 @@ type PrefixEncryptor struct {
 
 func NewPrefixEncryptor(encryptor Encryptor, prefix []byte) (*PrefixEncryptor, error) {
 	return &PrefixEncryptor{
-		encryptor: encryptor, prefix: prefix,
+		encryptor: encryptor,
+		prefix:    prefix,
 	}, nil
 }
 

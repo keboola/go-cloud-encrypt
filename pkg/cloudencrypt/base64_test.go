@@ -29,7 +29,7 @@ func TestBase64Encryptor(t *testing.T) {
 	meta := cloudencrypt.Metadata{}
 	meta["metakey"] = "metavalue"
 
-	ciphertext, err := encryptor.Encrypt(ctx, []byte("Lorem ipsum"), meta)
+	ciphertext, err := encryptor.Encrypt(ctx, []byte(" "), meta)
 	require.NoError(t, err)
 
 	_, err = base64.StdEncoding.DecodeString(string(ciphertext))
@@ -41,5 +41,5 @@ func TestBase64Encryptor(t *testing.T) {
 	plaintext, err := encryptor.Decrypt(ctx, ciphertext, meta)
 	require.NoError(t, err)
 
-	assert.Equal(t, []byte("Lorem ipsum"), plaintext)
+	assert.Equal(t, []byte(" "), plaintext)
 }
