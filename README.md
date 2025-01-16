@@ -6,7 +6,7 @@ Library designed for symmetric encryption using AWS, GCP or Azure services.
 
 ## Usage
 
-It is recommended to use the `DualEncryptor` which encrypts the given input using `NativeEncryptor` and then the secret
+It is recommended to use the `AESWrapEncryptor` which encrypts the given input using `AESEncryptor` and then the secret
 key using the given encryptor. You may also want to use `CachedEncryptor` to avoid decrypting the same value repeatedly.
 
 ```go
@@ -40,7 +40,7 @@ func CreateEncryptor(ctx context.Context) (*cloudencrypt.Encryptor, error) {
 		return nil, err
 	}
 
-	encryptor, err = cloudencrypt.NewDualEncryptor(ctx, encryptor)
+	encryptor, err = cloudencrypt.NewAESWrapEncryptor(ctx, encryptor)
 	if err != nil {
 		return nil, err
 	}

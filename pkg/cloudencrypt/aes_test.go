@@ -11,7 +11,7 @@ import (
 	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt"
 )
 
-func TestDualEncryptor(t *testing.T) {
+func TestAESEncryptor(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -19,10 +19,7 @@ func TestDualEncryptor(t *testing.T) {
 	secretKey, err := random.SecretKey()
 	require.NoError(t, err)
 
-	nativeEncryptor, err := cloudencrypt.NewNativeEncryptor(secretKey)
-	require.NoError(t, err)
-
-	encryptor, err := cloudencrypt.NewDualEncryptor(ctx, nativeEncryptor)
+	encryptor, err := cloudencrypt.NewAESEncryptor(secretKey)
 	require.NoError(t, err)
 
 	meta := cloudencrypt.Metadata{}

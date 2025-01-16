@@ -11,19 +11,19 @@ import (
 	"github.com/keboola/go-cloud-encrypt/internal/random"
 )
 
-// NativeEncryptor Implements Encryptor without using any cloud service.
-type NativeEncryptor struct {
+// AESEncryptor Implements Encryptor without using any cloud service.
+type AESEncryptor struct {
 	gcm       cipher.AEAD
 	generator NonceGenerator
 }
 
 type NonceGenerator func(int) ([]byte, error)
 
-func NewNativeEncryptor(secretKey []byte) (*NativeEncryptor, error) {
-	return NewNativeEncryptorWithNonceGenerator(secretKey, random.Bytes)
+func NewAESEncryptor(secretKey []byte) (*AESEncryptor, error) {
+	return NewAESEncryptorWithNonceGenerator(secretKey, random.Bytes)
 }
 
-func NewNativeEncryptorWithNonceGenerator(secretKey []byte, generator NonceGenerator) (*NativeEncryptor, error) {
+func NewAESEncryptorWithNonceGenerator(secretKey []byte, generator NonceGenerator) (*AESEncryptor, error) {
 	if generator == nil {
 		return nil, errors.New("missing nonce generator")
 	}
@@ -38,13 +38,13 @@ func NewNativeEncryptorWithNonceGenerator(secretKey []byte, generator NonceGener
 		return nil, errors.Wrapf(err, "can't create gcm: %s", err.Error())
 	}
 
-	return &NativeEncryptor{
+	return &AESEncryptor{
 		gcm:       gcm,
 		generator: generator,
 	}, nil
 }
 
-func (encryptor *NativeEncryptor) Encrypt(ctx context.Context, plaintext []byte, meta Metadata) ([]byte, error) {
+func (encryptor *AESEncryptor) Encrypt(ctx context.Context, plaintext []byte, meta Metadata) ([]byte, error) {
 	additionalData, err := json.Marshal(meta)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (encryptor *NativeEncryptor) Encrypt(ctx context.Context, plaintext []byte,
 	return encryptor.gcm.Seal(nonce, nonce, plaintext, additionalData), nil
 }
 
-func (encryptor *NativeEncryptor) Decrypt(ctx context.Context, ciphertext []byte, meta Metadata) ([]byte, error) {
+func (encryptor *AESEncryptor) Decrypt(ctx context.Context, ciphertext []byte, meta Metadata) ([]byte, error) {
 	additionalData, err := json.Marshal(meta)
 	if err != nil {
 		return nil, err
@@ -77,6 +77,6 @@ func (encryptor *NativeEncryptor) Decrypt(ctx context.Context, ciphertext []byte
 	return plaintext, nil
 }
 
-func (encryptor *NativeEncryptor) Close() error {
+func (encryptor *AESEncryptor) Close() error {
 	return nil
 }

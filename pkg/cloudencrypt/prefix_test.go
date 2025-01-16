@@ -20,10 +20,10 @@ func TestPrefixEncryptor(t *testing.T) {
 	secretKey, err := random.SecretKey()
 	require.NoError(t, err)
 
-	nativeEncryptor, err := cloudencrypt.NewNativeEncryptor(secretKey)
+	aesEncryptor, err := cloudencrypt.NewAESEncryptor(secretKey)
 	require.NoError(t, err)
 
-	encryptor, err := cloudencrypt.NewPrefixEncryptor(ctx, nativeEncryptor, []byte("Prefix::"))
+	encryptor, err := cloudencrypt.NewPrefixEncryptor(ctx, aesEncryptor, []byte("Prefix::"))
 	require.NoError(t, err)
 
 	meta := cloudencrypt.Metadata{}

@@ -21,10 +21,10 @@ func TestMultiplexEncryptor(t *testing.T) {
 		secretKey, err := random.SecretKey()
 		require.NoError(t, err)
 
-		nativeEncryptor, err := cloudencrypt.NewNativeEncryptor(secretKey)
+		aesEncryptor, err := cloudencrypt.NewAESEncryptor(secretKey)
 		require.NoError(t, err)
 
-		return cloudencrypt.NewPrefixEncryptor(ctx, nativeEncryptor, prefix)
+		return cloudencrypt.NewPrefixEncryptor(ctx, aesEncryptor, prefix)
 	}
 
 	newEncryptor, err := encryptorFactory(ctx, []byte("New::"))

@@ -24,13 +24,13 @@ func TestCachedEncryptor(t *testing.T) {
 	secretKey, err := random.SecretKey()
 	require.NoError(t, err)
 
-	nativeEncryptor, err := cloudencrypt.NewNativeEncryptor(secretKey)
+	aesEncryptor, err := cloudencrypt.NewAESEncryptor(secretKey)
 	require.NoError(t, err)
 
 	var buffer bytes.Buffer
 	logger := log.New(&buffer, "", 0)
 
-	logEncryptor, err := cloudencrypt.NewLoggedEncryptor(ctx, nativeEncryptor, logger)
+	logEncryptor, err := cloudencrypt.NewLoggedEncryptor(ctx, aesEncryptor, logger)
 	require.NoError(t, err)
 
 	config := &ristretto.Config[[]byte, []byte]{
