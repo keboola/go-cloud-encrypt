@@ -28,7 +28,7 @@ func TestLoggedEncryptor(t *testing.T) {
 	var buffer bytes.Buffer
 	logger := log.New(&buffer, "", 0)
 
-	encryptor, err := cloudencrypt.NewLoggedEncryptor(ctx, aesEncryptor, logger)
+	encryptor, err := cloudencrypt.NewLoggedEncryptor(aesEncryptor, logger)
 	require.NoError(t, err)
 
 	meta := cloudencrypt.Metadata{}
