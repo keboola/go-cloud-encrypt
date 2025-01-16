@@ -30,7 +30,7 @@ func TestCachedEncryptor(t *testing.T) {
 	var buffer bytes.Buffer
 	logger := log.New(&buffer, "", 0)
 
-	logEncryptor, err := cloudencrypt.NewLoggedEncryptor(ctx, aesEncryptor, logger)
+	logEncryptor, err := cloudencrypt.NewLoggedEncryptor(aesEncryptor, logger)
 	require.NoError(t, err)
 
 	config := &ristretto.Config[[]byte, []byte]{

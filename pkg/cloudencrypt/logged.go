@@ -11,7 +11,7 @@ type LoggedEncryptor struct {
 	logger    *log.Logger
 }
 
-func NewLoggedEncryptor(ctx context.Context, encryptor Encryptor, logger *log.Logger) (*LoggedEncryptor, error) {
+func NewLoggedEncryptor(encryptor Encryptor, logger *log.Logger) (*LoggedEncryptor, error) {
 	return &LoggedEncryptor{
 		encryptor: encryptor,
 		logger:    logger,

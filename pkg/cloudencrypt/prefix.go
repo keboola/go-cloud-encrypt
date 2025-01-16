@@ -12,10 +12,9 @@ type PrefixEncryptor struct {
 	prefix    []byte
 }
 
-func NewPrefixEncryptor(ctx context.Context, encryptor Encryptor, prefix []byte) (*PrefixEncryptor, error) {
+func NewPrefixEncryptor(encryptor Encryptor, prefix []byte) (*PrefixEncryptor, error) {
 	return &PrefixEncryptor{
-		encryptor: encryptor,
-		prefix:    prefix,
+		encryptor: encryptor, prefix: prefix,
 	}, nil
 }
 

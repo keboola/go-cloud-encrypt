@@ -17,20 +17,20 @@ func TestMultiplexEncryptor(t *testing.T) {
 
 	ctx := context.Background()
 
-	encryptorFactory := func(ctx context.Context, prefix []byte) (*cloudencrypt.PrefixEncryptor, error) {
+	encryptorFactory := func(prefix []byte) (*cloudencrypt.PrefixEncryptor, error) {
 		secretKey, err := random.SecretKey()
 		require.NoError(t, err)
 
 		aesEncryptor, err := cloudencrypt.NewAESEncryptor(secretKey)
 		require.NoError(t, err)
 
-		return cloudencrypt.NewPrefixEncryptor(ctx, aesEncryptor, prefix)
+		return cloudencrypt.NewPrefixEncryptor(aesEncryptor, prefix)
 	}
 
-	newEncryptor, err := encryptorFactory(ctx, []byte("New::"))
+	newEncryptor, err := encryptorFactory([]byte("New::"))
 	require.NoError(t, err)
 
-	oldEncryptor, err := encryptorFactory(ctx, []byte("Old::"))
+	oldEncryptor, err := encryptorFactory([]byte("Old::"))
 	require.NoError(t, err)
 
 	decryptors := []*cloudencrypt.PrefixEncryptor{oldEncryptor}
