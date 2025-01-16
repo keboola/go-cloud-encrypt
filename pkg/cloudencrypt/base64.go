@@ -28,11 +28,12 @@ func (encryptor *Base64Encryptor) Encrypt(ctx context.Context, plaintext []byte,
 
 func (encryptor *Base64Encryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata Metadata) ([]byte, error) {
 	dst := make([]byte, base64.StdEncoding.DecodedLen(len(ciphertext)))
-	if _, err := base64.StdEncoding.Decode(dst, ciphertext); err != nil {
+	n, err := base64.StdEncoding.Decode(dst, ciphertext)
+	if err != nil {
 		return nil, err
 	}
 
-	plaintext, err := encryptor.encryptor.Decrypt(ctx, dst, metadata)
+	plaintext, err := encryptor.encryptor.Decrypt(ctx, dst[:n], metadata)
 	if err != nil {
 		return nil, err
 	}
