@@ -12,26 +12,26 @@ const (
 	mapKeyCipherText = "ciphertext"
 )
 
-// DualEncryptor implements Encryptor by encrypting the value using the NativeEncryptor
+// AESWrapEncryptor implements Encryptor by encrypting the value using the AESEncryptor
 // and then encrypting the secret key using the provided encryptor.
-type DualEncryptor struct {
+type AESWrapEncryptor struct {
 	encryptor Encryptor
 }
 
-func NewDualEncryptor(ctx context.Context, encryptor Encryptor) (*DualEncryptor, error) {
-	return &DualEncryptor{
+func NewAESWrapEncryptor(ctx context.Context, encryptor Encryptor) (*AESWrapEncryptor, error) {
+	return &AESWrapEncryptor{
 		encryptor: encryptor,
 	}, nil
 }
 
-func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata Metadata) ([]byte, error) {
+func (encryptor *AESWrapEncryptor) Encrypt(ctx context.Context, plaintext []byte, metadata Metadata) ([]byte, error) {
 	// Generate a random secret key
 	secretKey, err := random.SecretKey()
 	if err != nil {
 		return nil, err
 	}
 
-	ciphertext, err := nativeEncrypt(ctx, secretKey, plaintext, metadata)
+	ciphertext, err := aesEncrypt(ctx, secretKey, plaintext, metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (encryptor *DualEncryptor) Encrypt(ctx context.Context, plaintext []byte, m
 	return encoded, nil
 }
 
-func (encryptor *DualEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata Metadata) ([]byte, error) {
+func (encryptor *AESWrapEncryptor) Decrypt(ctx context.Context, ciphertext []byte, metadata Metadata) ([]byte, error) {
 	decoded, err := serialize.Deserialize[map[string][]byte](ciphertext)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (encryptor *DualEncryptor) Decrypt(ctx context.Context, ciphertext []byte, 
 		return nil, err
 	}
 
-	plaintext, err := nativeDecrypt(ctx, secretKey, decoded[mapKeyCipherText], metadata)
+	plaintext, err := aesDecrypt(ctx, secretKey, decoded[mapKeyCipherText], metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -74,20 +74,20 @@ func (encryptor *DualEncryptor) Decrypt(ctx context.Context, ciphertext []byte, 
 	return plaintext, nil
 }
 
-func (encryptor *DualEncryptor) Close() error {
+func (encryptor *AESWrapEncryptor) Close() error {
 	return encryptor.encryptor.Close()
 }
 
-func nativeEncrypt(ctx context.Context, secretKey []byte, plaintext []byte, metadata Metadata) ([]byte, error) {
-	nativeEncryptor, err := NewNativeEncryptor(secretKey)
+func aesEncrypt(ctx context.Context, secretKey []byte, plaintext []byte, metadata Metadata) ([]byte, error) {
+	aesEncryptor, err := NewAESEncryptor(secretKey)
 	if err != nil {
 		return nil, err
 	}
 
-	defer nativeEncryptor.Close()
+	defer aesEncryptor.Close()
 
 	// Encrypt given plaintext using the random secret key
-	ciphertext, err := nativeEncryptor.Encrypt(ctx, plaintext, metadata)
+	ciphertext, err := aesEncryptor.Encrypt(ctx, plaintext, metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -95,16 +95,16 @@ func nativeEncrypt(ctx context.Context, secretKey []byte, plaintext []byte, meta
 	return ciphertext, nil
 }
 
-func nativeDecrypt(ctx context.Context, secretKey []byte, ciphertext []byte, metadata Metadata) ([]byte, error) {
+func aesDecrypt(ctx context.Context, secretKey []byte, ciphertext []byte, metadata Metadata) ([]byte, error) {
 	// Decrypt the value using the decrypted secret key
-	nativeEncryptor, err := NewNativeEncryptor(secretKey)
+	aesEncryptor, err := NewAESEncryptor(secretKey)
 	if err != nil {
 		return nil, err
 	}
 
-	defer nativeEncryptor.Close()
+	defer aesEncryptor.Close()
 
-	plaintext, err := nativeEncryptor.Decrypt(ctx, ciphertext, metadata)
+	plaintext, err := aesEncryptor.Decrypt(ctx, ciphertext, metadata)
 	if err != nil {
 		return nil, err
 	}

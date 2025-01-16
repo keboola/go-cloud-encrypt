@@ -11,7 +11,7 @@ import (
 	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt"
 )
 
-func TestNativeEncryptor(t *testing.T) {
+func TestAESWrapEncryptor(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -19,7 +19,10 @@ func TestNativeEncryptor(t *testing.T) {
 	secretKey, err := random.SecretKey()
 	require.NoError(t, err)
 
-	encryptor, err := cloudencrypt.NewNativeEncryptor(secretKey)
+	aesEncryptor, err := cloudencrypt.NewAESEncryptor(secretKey)
+	require.NoError(t, err)
+
+	encryptor, err := cloudencrypt.NewAESWrapEncryptor(ctx, aesEncryptor)
 	require.NoError(t, err)
 
 	meta := cloudencrypt.Metadata{}

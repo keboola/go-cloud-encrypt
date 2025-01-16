@@ -24,7 +24,7 @@ func TestGenericEncryptor(t *testing.T) {
 	secretKey, err := random.SecretKey()
 	require.NoError(t, err)
 
-	encryptor, err := cloudencrypt.NewNativeEncryptor(secretKey)
+	encryptor, err := cloudencrypt.NewAESEncryptor(secretKey)
 	require.NoError(t, err)
 
 	myStructEncryptor := cloudencrypt.NewGenericEncryptor[myStruct](encryptor)

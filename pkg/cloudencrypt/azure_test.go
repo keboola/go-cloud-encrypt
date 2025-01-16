@@ -29,7 +29,7 @@ func TestAzureEncryptor(t *testing.T) {
 	azureEncryptor, err := cloudencrypt.NewAzureEncryptor(ctx, vaultURL, keyName)
 	require.NoError(t, err)
 
-	encryptor, err := cloudencrypt.NewDualEncryptor(ctx, azureEncryptor)
+	encryptor, err := cloudencrypt.NewAESWrapEncryptor(ctx, azureEncryptor)
 	require.NoError(t, err)
 
 	meta := cloudencrypt.Metadata{}
