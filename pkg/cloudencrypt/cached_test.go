@@ -10,6 +10,7 @@ import (
 	"github.com/dgraph-io/ristretto/v2"
 	"github.com/keboola/go-utils/pkg/wildcards"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/keboola/go-cloud-encrypt/internal/random"
 	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt"
@@ -21,16 +22,16 @@ func TestCachedEncryptor(t *testing.T) {
 	ctx := context.Background()
 
 	secretKey, err := random.SecretKey()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	nativeEncryptor, err := cloudencrypt.NewNativeEncryptor(secretKey)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	var buffer bytes.Buffer
 	logger := log.New(&buffer, "", 0)
 
 	logEncryptor, err := cloudencrypt.NewLoggedEncryptor(ctx, nativeEncryptor, logger)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	config := &ristretto.Config[[]byte, []byte]{
 		NumCounters: 1e4,
@@ -39,7 +40,7 @@ func TestCachedEncryptor(t *testing.T) {
 	}
 
 	cache, err := ristretto.NewCache(config)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	encryptor := cloudencrypt.NewCachedEncryptor(
 		logEncryptor,
@@ -51,7 +52,7 @@ func TestCachedEncryptor(t *testing.T) {
 	meta["metakey"] = "metavalue"
 
 	ciphertext, err := encryptor.Encrypt(ctx, []byte("Lorem ipsum"), meta)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Wait for cached item to be available for get operations
 	cache.Wait()
@@ -60,7 +61,7 @@ func TestCachedEncryptor(t *testing.T) {
 	assert.ErrorContains(t, err, "cipher: message authentication failed")
 
 	plaintext, err := encryptor.Decrypt(ctx, ciphertext, meta)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, []byte("Lorem ipsum"), plaintext)
 

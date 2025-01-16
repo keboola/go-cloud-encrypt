@@ -42,7 +42,7 @@ func TestAzureEncryptor(t *testing.T) {
 	assert.ErrorContains(t, err, "decryption failed")
 
 	plaintext, err := encryptor.Decrypt(ctx, ciphertext, meta)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, []byte("Lorem ipsum"), plaintext)
 }

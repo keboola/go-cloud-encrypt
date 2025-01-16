@@ -79,6 +79,9 @@ terraform -chdir=./provisioning/local apply
 docker compose run --rm dev
 ```
 
+Important: The existing encryptors should not be changed in a way that they would no longer be able to decrypt values
+encrypted using the older version. If you need to make such change, add it as a new encryptor instead.
+
 ## License
 
 MIT licensed, see [LICENSE](./LICENSE) file.
