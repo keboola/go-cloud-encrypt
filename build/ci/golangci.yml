@@ -1,62 +1,19 @@
+version: "2"
+
 run:
-  timeout: 15m
   concurrency: 8
-  max-issues-per-linter: 0
-  # Maximum count of issues with the same text.
-  max-same-issues: 0
-  tests: true # check test files
   modules-download-mode: mod
-
-output:
-  sort-results: true
-
-linters-settings:
-  # Prevent updating goa generated code due to linter update
-  misspell:
-    ignore-words:
-      - Statuser
-  # Errors from the project can be returned without wrapping
-  wrapcheck:
-    ignorePackageGlobs:
-      - github.com/keboola/go-cloud-encrypt/*
-  # Gci - improved version of goimports
-  gci:
-    sections:
-      - standard # Captures all standard packages if they do not match another section.
-      - default # Contains all imports that could not be matched to another section type.
-      - prefix(github.com/keboola/go-cloud-encrypt)
-
-  gocyclo:
-    # minimal code complexity to report, 30 by default (but we recommend 10-20)
-    min-complexity: 10
-
-  dupl:
-    threshold: 500
-
-  # Forbidden constructions
-  forbidigo:
-    # Instead of matching the literal source code, use real package name.
-    analyze-types: true
-    forbid:
-      # No debug statements
-      - p: ^(fmt\.Print.*|print|println)$
-        msg: Debug statements are forbidden, use a logger, not debug statements.
-
-  stylecheck:
-    checks:
-      - all
-
-  exhaustive:
-    check-generated: true
-    default-signifies-exhaustive: true
+  tests: true
 
 # https://golangci-lint.run/usage/linters
 linters:
-  disable-all: true
+  default: none
   enable:
     - asciicheck
     - bodyclose
     - contextcheck
+    - copyloopvar
+    - cyclop
     - dogsled
     - dupl
     - durationcheck
@@ -64,38 +21,36 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - copyloopvar
     - forbidigo
-    - gci
+    - funlen
     - gochecknoglobals
     - gochecknoinits
+    - gocognit
     - goconst
     - gocritic
     - godot
     - godox
-    - gofumpt
     - goheader
     - gomodguard
     - goprintffuncname
     - gosec
-    - gosimple
     - govet
     - importas
     - ineffassign
     - makezero
     - nakedret
+    - nestif
     - nilerr
     - noctx
+    - paralleltest
     - predeclared
     - promlinter
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
-    - stylecheck
     - tagliatelle
     - thelper
     - tparallel
-    - paralleltest
     - unconvert
     - unparam
     - unused
@@ -108,28 +63,86 @@ linters:
     #- gomoddirectives # allow replace directive in go.mod
     #- misspell - broken, rewrites code
     # TODO
-    - funlen
     #- gocyclo
-    - gocognit
-    - cyclop
-    - nestif
     #- lll
     #- gomnd
+
+  settings:
+    dupl:
+      threshold: 500
+
+    exhaustive:
+      default-signifies-exhaustive: true
+
+    # Forbidden constructions
+    forbidigo:
+      # Instead of matching the literal source code, use real package name.
+      analyze-types: true
+      forbid:
+        # No debug statements
+        - pattern: ^(fmt\.Print.*|print|println)$
+          msg: Debug statements are forbidden, use a logger, not debug statements.
+
+    # minimal code complexity to report, 30 by default (but we recommend 10-20)
+    gocyclo:
+      min-complexity: 10
+
+    # Prevent updating goa generated code due to linter update
+    misspell:
+      ignore-rules:
+        - Statuser
+
+    staticcheck:
+      checks:
+        - all
+
+    # Errors from the project can be returned without wrapping
+    wrapcheck:
+      ignore-package-globs:
+        - github.com/keboola/go-cloud-encrypt/*
+
+  # Excluding configuration per-path, per-linter, per-text and per-source
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      # Exclude some linters from running on tests files.
+      - path: _test\.go
+        linters:
+          - bodyclose
+          - dogsled
+          - dupl
+          - errcheck
+          - errorlint
+          - gochecknoglobals
+          - goconst
+          - gocyclo
+          - gosec
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 
 issues:
   max-same-issues: 25
 
-  # Excluding configuration per-path, per-linter, per-text and per-source
-  exclude-rules:
-    # Exclude some linters from running on tests files.
-    - path: _test\.go
-      linters:
-        - gocyclo
-        - goconst
-        - gosec
-        - gochecknoglobals
-        - errcheck
-        - errorlint
-        - dupl
-        - dogsled
-        - bodyclose
+formatters:
+  enable:
+    - gci
+    - gofumpt
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/keboola/go-cloud-encrypt)
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
