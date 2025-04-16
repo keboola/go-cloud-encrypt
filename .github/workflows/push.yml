@@ -47,7 +47,7 @@ jobs:
 
       - name: Run linter
         run: |
-          docker compose -f docker-compose.ci.yml run ci sh -c "git config --global --add safe.directory /code && make lint"
+          docker compose -f docker-compose.ci.yml run ci sh -c "git config --global --add safe.directory /code && task lint"
 
       - name: Run tests
         run: |
