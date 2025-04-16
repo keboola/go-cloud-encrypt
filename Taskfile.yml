@@ -15,8 +15,14 @@ tasks:
 
   tests:
     cmds:
-      - gotestsum --no-color=false --format testname -- -timeout 600s -p 8 -parallel 8 -race -coverprofile=/tmp/profile.out {{.TEST_ARGS}} ./pkg/...
+      - go tool gotestsum --no-color=false --format testname -- -timeout 600s -p 8 -parallel 8 -race -coverprofile=/tmp/profile.out {{.TEST_ARGS}} ./pkg/...
 
   godoc:
     cmds:
-      - godoc -http=0.0.0.0:6060
+      - go tool godoc -http=0.0.0.0:6060
+
+  update:
+    cmds:
+      - go tool go-mod-upgrade
+      - go mod tidy
+      - go mod vendor
