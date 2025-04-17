@@ -1,4 +1,4 @@
-FROM golang:1.23
+FROM golang:1.24
 
 ENV HOME=/my-home
 ENV GOCACHE=/tmp/cache/go
@@ -10,11 +10,14 @@ ENV PATH="$PATH:$GOPATH/bin"
 RUN apt-get update && apt-get install -y nano
 ENV EDITOR=nano
 
+# Install Task
+RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+
 # Install tools
 RUN mkdir -p /tmp/build
-COPY Makefile /tmp/build/Makefile
+COPY Taskfile.yml /tmp/build/Taskfile.yml
 COPY scripts  /tmp/build/scripts
-RUN cd /tmp/build && make tools && rm -rf /tmp/build
+RUN cd /tmp/build && task tools && rm -rf /tmp/build
 
 # Set prompt
 RUN mkdir -p ~ && \
