@@ -1,6 +1,6 @@
 module github.com/keboola/go-cloud-encrypt
 
-go 1.25.0
+go 1.26.3
 
 require (
 	cloud.google.com/go/kms v1.25.0
