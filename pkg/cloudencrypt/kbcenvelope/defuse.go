@@ -101,8 +101,8 @@ func decodeDefuseKey(encodedKey string) ([]byte, error) {
 		return nil, fmt.Errorf("invalid hex encoding: %w", err)
 	}
 
-	if len(decoded) < 68 {
-		return nil, fmt.Errorf("encoded key too short: expected at least 68 bytes, got %d", len(decoded))
+	if len(decoded) != 68 {
+		return nil, fmt.Errorf("encoded key has wrong length: expected exactly 68 bytes, got %d", len(decoded))
 	}
 
 	header := decoded[0:4]

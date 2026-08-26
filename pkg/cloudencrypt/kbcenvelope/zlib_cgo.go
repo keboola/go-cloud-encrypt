@@ -1,3 +1,5 @@
+//go:build cgo
+
 package kbcenvelope
 
 /*
@@ -22,15 +24,17 @@ import (
 // byte-for-byte. Go's standard compress/zlib writer adds sync-flush markers PHP's gzcompress()
 // doesn't, which breaks the Google KMS AAD comparison (see gcp.go) since AAD must match the
 // exact bytes the encryptor computed. CGO + libz is required here, not optional: this package
-// needs a C toolchain and libz-dev available at build time for Google KMS support to work.
+// needs a C toolchain and libz-dev available at build time for Google KMS support to work — a
+// pure-Go build (see zlib_nocgo.go) can still use the AWS/Azure encryptors, which never call this.
 func zlibCompressPHPCompatible(data []byte) ([]byte, error) {
 	if len(data) == 0 {
 		return nil, errors.New("cannot compress empty data")
 	}
 
 	sourceLen := C.ulong(len(data))
-	// zlib documentation's overhead bound: sourceLen + (sourceLen>>12) + (sourceLen>>14) + (sourceLen>>25) + 13.
-	destLen := C.ulong(len(data)*2 + 20)
+	// compressBound() is zlib's own guaranteed-sufficient worst-case bound for compress(),
+	// unlike a hand-rolled estimate which isn't guaranteed to cover every input.
+	destLen := C.compressBound(sourceLen)
 
 	dest := make([]byte, destLen)
 

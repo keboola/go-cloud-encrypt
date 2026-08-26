@@ -43,6 +43,13 @@ func manualPHPDeserializeArray(data []byte) (map[any]any, error) {
 		pos = next
 	}
 
+	// The loop above exits either on a '}' terminator or on running out of data first — the
+	// latter means a truncated input, which must be rejected rather than accepted with
+	// whatever partial set of members happened to be read.
+	if _, err := expectByte(data, pos, '}', "expected '}' at position %d"); err != nil {
+		return nil, err
+	}
+
 	return result, nil
 }
 

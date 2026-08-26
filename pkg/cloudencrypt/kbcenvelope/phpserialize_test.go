@@ -115,6 +115,9 @@ func TestManualPHPDeserializeArray_InvalidFormats(t *testing.T) {
 		{"empty_input", ``, "expected 'a'"},
 		// Attacker-controlled length near maxint must error, not panic (pos+strLen overflow).
 		{"overflowing_string_length", `a:1:{i:0;s:9223372036854775807:"AB";}`, "exceeds remaining data"},
+		// A missing closing '}' must be rejected, not silently accepted with a partial result.
+		{"missing_closing_brace", `a:1:{i:0;s:5:"hello";`, "expected '}'"},
+		{"truncated_after_last_member", `a:2:{i:0;s:5:"hello";i:1;s:5:"world";`, "expected '}'"},
 	}
 
 	for _, tc := range testCases {
