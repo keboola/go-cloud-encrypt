@@ -17,147 +17,172 @@ import (
 // library, because that library mis-reads large binary strings (off by one byte). It is only
 // used for the outer envelope array (payload + key/secret-name/secret-version), whose string
 // members are exactly this kind of binary-safe blob.
+//
+// Split into one function per grammar production (header / key / string value) purely to keep
+// each one's branching manageable — the grammar itself, and every error message, is unchanged.
 func manualPHPDeserializeArray(data []byte) (map[any]any, error) {
 	result := make(map[any]any)
-	pos := 0
 
-	if pos >= len(data) || data[pos] != 'a' {
-		return nil, fmt.Errorf("expected 'a' at position %d", pos)
+	pos, err := parsePHPArrayHeader(data)
+	if err != nil {
+		return nil, err
 	}
-
-	pos++
-
-	if pos >= len(data) || data[pos] != ':' {
-		return nil, fmt.Errorf("expected ':' at position %d", pos)
-	}
-
-	pos++
-
-	sizeEnd := pos
-	for sizeEnd < len(data) && data[sizeEnd] >= '0' && data[sizeEnd] <= '9' {
-		sizeEnd++
-	}
-
-	if sizeEnd == pos {
-		return nil, fmt.Errorf("expected array size at position %d", pos)
-	}
-
-	pos = sizeEnd
-
-	if pos >= len(data) || data[pos] != ':' {
-		return nil, fmt.Errorf("expected ':' after array size at position %d", pos)
-	}
-
-	pos++
-
-	if pos >= len(data) || data[pos] != '{' {
-		return nil, fmt.Errorf("expected '{' at position %d", pos)
-	}
-
-	pos++
 
 	for pos < len(data) && data[pos] != '}' {
-		if pos >= len(data) || data[pos] != 'i' {
-			return nil, fmt.Errorf("expected 'i' for key at position %d", pos)
+		key, next, err := parsePHPArrayKey(data, pos)
+		if err != nil {
+			return nil, err
 		}
 
-		pos++
-
-		if pos >= len(data) || data[pos] != ':' {
-			return nil, fmt.Errorf("expected ':' after 'i' at position %d", pos)
+		value, next, err := parsePHPArrayStringValue(data, next)
+		if err != nil {
+			return nil, err
 		}
-
-		pos++
-
-		keyEnd := pos
-		for keyEnd < len(data) && data[keyEnd] >= '0' && data[keyEnd] <= '9' {
-			keyEnd++
-		}
-
-		if keyEnd == pos {
-			return nil, fmt.Errorf("expected integer key at position %d", pos)
-		}
-
-		var key int64
-		if _, err := fmt.Sscanf(string(data[pos:keyEnd]), "%d", &key); err != nil {
-			return nil, fmt.Errorf("expected integer key at position %d: %w", pos, err)
-		}
-
-		pos = keyEnd
-
-		if pos >= len(data) || data[pos] != ';' {
-			return nil, fmt.Errorf("expected ';' after key at position %d", pos)
-		}
-
-		pos++
-
-		if pos >= len(data) || data[pos] != 's' {
-			return nil, fmt.Errorf("expected 's' for value at position %d", pos)
-		}
-
-		pos++
-
-		if pos >= len(data) || data[pos] != ':' {
-			return nil, fmt.Errorf("expected ':' after 's' at position %d", pos)
-		}
-
-		pos++
-
-		lenEnd := pos
-		for lenEnd < len(data) && data[lenEnd] >= '0' && data[lenEnd] <= '9' {
-			lenEnd++
-		}
-
-		if lenEnd == pos {
-			return nil, fmt.Errorf("expected string length at position %d", pos)
-		}
-
-		var strLen int
-		if _, err := fmt.Sscanf(string(data[pos:lenEnd]), "%d", &strLen); err != nil {
-			return nil, fmt.Errorf("expected string length at position %d: %w", pos, err)
-		}
-
-		pos = lenEnd
-
-		if pos >= len(data) || data[pos] != ':' {
-			return nil, fmt.Errorf("expected ':' after string length at position %d", pos)
-		}
-
-		pos++
-
-		if pos >= len(data) || data[pos] != '"' {
-			return nil, fmt.Errorf("expected '\"' at position %d", pos)
-		}
-
-		pos++
-
-		// Compared against the bytes remaining rather than as pos+strLen, which overflows for
-		// a declared length near maxint and wraps negative, slipping past the guard and
-		// panicking on the slice below. strLen is attacker-controlled (it arrives inside a
-		// user's configuration value).
-		if strLen < 0 || strLen > len(data)-pos {
-			return nil, fmt.Errorf("string length %d exceeds remaining data at position %d", strLen, pos)
-		}
-
-		value := string(data[pos : pos+strLen])
-		pos += strLen
-
-		if pos >= len(data) || data[pos] != '"' {
-			return nil, fmt.Errorf("expected closing '\"' at position %d", pos)
-		}
-
-		pos++
-
-		if pos >= len(data) || data[pos] != ';' {
-			return nil, fmt.Errorf("expected ';' after value at position %d", pos)
-		}
-
-		pos++
 
 		result[key] = value
+		pos = next
 	}
 
 	return result, nil
+}
+
+// expectByte requires data[pos] == want and returns pos+1, or a *fmt.Errorf(errFmt, pos) if
+// data is exhausted or the byte differs. errFmt must take exactly one %d (the position).
+func expectByte(data []byte, pos int, want byte, errFmt string) (int, error) {
+	if pos >= len(data) || data[pos] != want {
+		return 0, fmt.Errorf(errFmt, pos) //nolint:govet // errFmt is always a caller-supplied literal with one %d
+	}
+
+	return pos + 1, nil
+}
+
+// scanDigits consumes a run of ASCII digits starting at pos and reports whether it read at
+// least one.
+func scanDigits(data []byte, pos int) (int, bool) {
+	end := pos
+	for end < len(data) && data[end] >= '0' && data[end] <= '9' {
+		end++
+	}
+
+	return end, end != pos
+}
+
+// readFixedLengthString reads exactly n bytes at pos, binary-safe. n is attacker-controlled
+// (it arrives inside a user's configuration value), so it's checked against the bytes actually
+// remaining rather than as pos+n, which would overflow for a declared length near maxint and
+// wrap negative, slipping past a naive guard and panicking on the slice.
+func readFixedLengthString(data []byte, pos, n int) (string, int, error) {
+	if n < 0 || n > len(data)-pos {
+		return "", 0, fmt.Errorf("string length %d exceeds remaining data at position %d", n, pos)
+	}
+
+	return string(data[pos : pos+n]), pos + n, nil
+}
+
+// parsePHPArrayHeader consumes "a:N:{" and returns the position of the first member (or '}').
+func parsePHPArrayHeader(data []byte) (int, error) {
+	pos, err := expectByte(data, 0, 'a', "expected 'a' at position %d")
+	if err != nil {
+		return 0, err
+	}
+
+	pos, err = expectByte(data, pos, ':', "expected ':' at position %d")
+	if err != nil {
+		return 0, err
+	}
+
+	sizeEnd, ok := scanDigits(data, pos)
+	if !ok {
+		return 0, fmt.Errorf("expected array size at position %d", pos)
+	}
+
+	pos, err = expectByte(data, sizeEnd, ':', "expected ':' after array size at position %d")
+	if err != nil {
+		return 0, err
+	}
+
+	return expectByte(data, pos, '{', "expected '{' at position %d")
+}
+
+// parsePHPArrayKey consumes "i:X;" starting at pos and returns the key and the position after it.
+func parsePHPArrayKey(data []byte, pos int) (int64, int, error) {
+	pos, err := expectByte(data, pos, 'i', "expected 'i' for key at position %d")
+	if err != nil {
+		return 0, 0, err
+	}
+
+	pos, err = expectByte(data, pos, ':', "expected ':' after 'i' at position %d")
+	if err != nil {
+		return 0, 0, err
+	}
+
+	keyEnd, ok := scanDigits(data, pos)
+	if !ok {
+		return 0, 0, fmt.Errorf("expected integer key at position %d", pos)
+	}
+
+	var key int64
+	if _, err := fmt.Sscanf(string(data[pos:keyEnd]), "%d", &key); err != nil {
+		return 0, 0, fmt.Errorf("expected integer key at position %d: %w", pos, err)
+	}
+
+	pos, err = expectByte(data, keyEnd, ';', "expected ';' after key at position %d")
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return key, pos, nil
+}
+
+// parsePHPArrayStringValue consumes "s:L:"<L bytes>";" starting at pos, binary-safe, and
+// returns the decoded value and the position after it.
+func parsePHPArrayStringValue(data []byte, pos int) (string, int, error) {
+	pos, err := expectByte(data, pos, 's', "expected 's' for value at position %d")
+	if err != nil {
+		return "", 0, err
+	}
+
+	pos, err = expectByte(data, pos, ':', "expected ':' after 's' at position %d")
+	if err != nil {
+		return "", 0, err
+	}
+
+	lenEnd, ok := scanDigits(data, pos)
+	if !ok {
+		return "", 0, fmt.Errorf("expected string length at position %d", pos)
+	}
+
+	var strLen int
+	if _, err := fmt.Sscanf(string(data[pos:lenEnd]), "%d", &strLen); err != nil {
+		return "", 0, fmt.Errorf("expected string length at position %d: %w", pos, err)
+	}
+
+	pos, err = expectByte(data, lenEnd, ':', "expected ':' after string length at position %d")
+	if err != nil {
+		return "", 0, err
+	}
+
+	pos, err = expectByte(data, pos, '"', "expected '\"' at position %d")
+	if err != nil {
+		return "", 0, err
+	}
+
+	value, pos, err := readFixedLengthString(data, pos, strLen)
+	if err != nil {
+		return "", 0, err
+	}
+
+	pos, err = expectByte(data, pos, '"', "expected closing '\"' at position %d")
+	if err != nil {
+		return "", 0, err
+	}
+
+	pos, err = expectByte(data, pos, ';', "expected ';' after value at position %d")
+	if err != nil {
+		return "", 0, err
+	}
+
+	return value, pos, nil
 }
 
 // phpSerializeSortedMetadata serializes Metadata to PHP's array format with keys sorted

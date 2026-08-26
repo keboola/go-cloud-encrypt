@@ -229,49 +229,69 @@ func decodeAzureSecret(encodedSecret string) (*azureSecretData, error) {
 func convertToStringMap(data any) (map[string]string, error) {
 	switch v := data.(type) {
 	case []any:
-		if len(v) == 0 {
-			return make(map[string]string), nil
-		}
-
-		return nil, errors.New("non-empty array cannot be converted to map")
+		return convertEmptyPHPArray(v)
 	case map[any]any:
-		result := make(map[string]string, len(v))
-
-		for k, val := range v {
-			var keyStr string
-
-			switch kt := k.(type) {
-			case string:
-				keyStr = kt
-			case int64:
-				keyStr = strconv.FormatInt(kt, 10)
-			default:
-				return nil, fmt.Errorf("invalid key type: %T", k)
-			}
-
-			valStr, ok := val.(string)
-			if !ok {
-				return nil, fmt.Errorf("invalid value type for key %v: %T", k, val)
-			}
-
-			result[keyStr] = valStr
-		}
-
-		return result, nil
+		return convertAnyKeyedPHPMap(v)
 	case map[string]any:
-		result := make(map[string]string, len(v))
-
-		for k, val := range v {
-			valStr, ok := val.(string)
-			if !ok {
-				return nil, fmt.Errorf("invalid value type for key %s: %T", k, val)
-			}
-
-			result[k] = valStr
-		}
-
-		return result, nil
+		return convertStringKeyedPHPMap(v)
 	default:
 		return nil, fmt.Errorf("unexpected type: %T", data)
+	}
+}
+
+// convertEmptyPHPArray handles PHP's empty-array literal, which the deserializer represents as
+// []any regardless of whether the source was semantically a list or a map.
+func convertEmptyPHPArray(v []any) (map[string]string, error) {
+	if len(v) == 0 {
+		return make(map[string]string), nil
+	}
+
+	return nil, errors.New("non-empty array cannot be converted to map")
+}
+
+func convertAnyKeyedPHPMap(v map[any]any) (map[string]string, error) {
+	result := make(map[string]string, len(v))
+
+	for k, val := range v {
+		keyStr, err := phpArrayKeyToString(k)
+		if err != nil {
+			return nil, err
+		}
+
+		valStr, ok := val.(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid value type for key %v: %T", k, val)
+		}
+
+		result[keyStr] = valStr
+	}
+
+	return result, nil
+}
+
+func convertStringKeyedPHPMap(v map[string]any) (map[string]string, error) {
+	result := make(map[string]string, len(v))
+
+	for k, val := range v {
+		valStr, ok := val.(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid value type for key %s: %T", k, val)
+		}
+
+		result[k] = valStr
+	}
+
+	return result, nil
+}
+
+// phpArrayKeyToString normalizes a PHP array key (string or, for numeric keys, int64) to string.
+func phpArrayKeyToString(k any) (string, error) {
+	switch kt := k.(type) {
+	case string:
+		return kt, nil
+	case int64:
+		return strconv.FormatInt(kt, 10), nil
+	default:
+		return "", fmt.Errorf("invalid key type: %T", k)
 	}
 }

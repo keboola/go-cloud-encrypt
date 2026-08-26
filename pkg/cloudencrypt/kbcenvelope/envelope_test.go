@@ -108,7 +108,7 @@ func TestDecodeAWSCipherDataRejectsOverflowingStringLength(t *testing.T) {
 	t.Parallel()
 
 	for _, declared := range []string{
-		"9223372036854775807", // maxint64
+		"9223372036854775807",  // maxint64
 		"99999999999999999999", // beyond int64 entirely
 	} {
 		t.Run(declared, func(t *testing.T) {

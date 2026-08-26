@@ -10,14 +10,14 @@ import (
 	"github.com/keboola/go-cloud-encrypt/pkg/cloudencrypt"
 )
 
-func TestManualPHPDeserializeArray_ValidFormats(t *testing.T) {
-	t.Parallel()
+type deserializeValidCase struct {
+	name     string
+	input    string
+	expected map[any]any
+}
 
-	testCases := []struct {
-		name     string
-		input    string
-		expected map[any]any
-	}{
+func validDeserializeCases() []deserializeValidCase {
+	return []deserializeValidCase{
 		{
 			name:  "simple_two_element_array",
 			input: `a:2:{i:0;s:5:"hello";i:1;s:5:"world";}`,
@@ -65,15 +65,19 @@ func TestManualPHPDeserializeArray_ValidFormats(t *testing.T) {
 			},
 		},
 		{
-			name: "long_string",
+			name:  "long_string",
 			input: `a:1:{i:0;s:1000:"` + strings.Repeat("A", 1000) + `";}`,
 			expected: map[any]any{
 				int64(0): strings.Repeat("A", 1000),
 			},
 		},
 	}
+}
 
-	for _, tc := range testCases {
+func TestManualPHPDeserializeArray_ValidFormats(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range validDeserializeCases() {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

@@ -6,8 +6,14 @@ ENV GOMODCACHE=/tmp/cache/go-mod
 ENV GOFLAGS="-mod=mod"
 ENV PATH="$PATH:$GOPATH/bin"
 
-# Install editor
-RUN apt-get update && apt-get install -y nano
+# Install build tools and zlib for CGO compilation (needed by pkg/cloudencrypt/kbcenvelope,
+# which links libz to reproduce PHP's gzcompress() byte-for-byte for the Google KMS AAD).
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libc6-dev \
+    zlib1g-dev \
+    nano \
+    && rm -rf /var/lib/apt/lists/*
 ENV EDITOR=nano
 
 # Install Task
